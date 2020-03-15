@@ -1,0 +1,28 @@
+# dependencies
+node_modules
+
+# logs
+npm-debug.log
+
+# Nuxt build
+.nuxt
+
+# Nuxt generate
+dist
+
+# tests
+coverage
+
+# vscode
+jsconfig.json
+
+# cypress
+test/cypress/screenshots
+test/cypress/videos
+
+# jetbrains
+.idea
+
+.DS_Store
+
+.env

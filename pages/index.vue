@@ -2,27 +2,19 @@
   <div class="container">
     <div>
       <logo />
-      <h1 class="title">
-        the-movie-project-dressing-room
-      </h1>
-      <h2 class="subtitle">
-        The Movie Project Dressing Room
-      </h2>
+      <div v-if="$auth.loggedIn">
+        {{$auth.user.email}}
+        <a>Logout</a>
+        <!-- logout button -->
+      </div>
+      <div v-else>
+        <nuxt-link to="/login">Logout</nuxt-link>
+      </div>
+      <h1 class="title">the-movie-project-dressing-room</h1>
+      <h2 class="subtitle">The Movie Project Dressing Room</h2>
       <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          class="button--green"
-        >
-          Documentation
-        </a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          class="button--grey"
-        >
-          GitHub
-        </a>
+        <a href="https://nuxtjs.org/" target="_blank" class="button--green">Documentation</a>
+        <a href="https://github.com/nuxt/nuxt.js" target="_blank" class="button--grey">GitHub</a>
       </div>
     </div>
   </div>
