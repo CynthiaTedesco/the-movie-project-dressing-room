@@ -20,22 +20,32 @@
           :type="showPassword ? 'text' : 'password'"
           :class="{invalid: !userInfo.password && !valid}"
         />
+        <font-awesome-icon
+          :icon="['fas', showPassword ? 'eye' : 'eye-slash']"
+          @click="showPassword = !showPassword"
+        />
       </div>
-      <!-- :class="passwordClasses"
-      @click="showPassword = !showPassword"-->
 
       <b-button @click="onSubmit">Login</b-button>
     </form>
   </div>
 </template>
+
 <script>
+import Vue from 'vue';
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+library.add(faEye)
+library.add(faEyeSlash)
+Vue.component('font-awesome-icon', FontAwesomeIcon)
+
 export default {
   name: 'login',
   data () {
     return {
       valid: true,
-      //   validUsername: true,
-      //   validPassword: true,
       showPassword: false,
       userInfo: {
         username: '',
@@ -45,7 +55,7 @@ export default {
   },
   computed: {
     passwordClasses () {
-      return showPassword ?
+      return this.showPassword ?
         'fas fa-eye' : 'fas fa-eye-slash'
     },
     validForm () {
@@ -88,6 +98,7 @@ div.login {
       display: grid;
       grid-template-columns: 20% 80%;
       margin-bottom: 2rem;
+      position: relative;
 
       > label {
         text-align: right;
@@ -107,6 +118,16 @@ div.login {
         &.invalid {
           border-color: red;
         }
+      }
+
+      /deep/ svg {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        cursor: pointer;
+        opacity: 0.7;
+        height: 16px;
+        width: 18px;
       }
     }
 
