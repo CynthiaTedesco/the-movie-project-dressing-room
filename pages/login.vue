@@ -1,9 +1,14 @@
 <template>
   <div class="login">
-    <form @submit.prevent="onSubmit">
+    <img src="movie-film.jpg" alt />
+    <form @submit.prevent>
       <div>
-        <label for="email">Email</label>
-        <input id="email" v-model="userInfo.email" label="Email" />
+        <label for="username">User</label>
+        <input
+          id="username"
+          v-model="userInfo.username"
+          :class="{invalid: !userInfo.username && !valid}"
+        />
       </div>
 
       <div>
@@ -13,24 +18,27 @@
           v-model="userInfo.password"
           label="Password"
           :type="showPassword ? 'text' : 'password'"
+          :class="{invalid: !userInfo.password && !valid}"
         />
       </div>
       <!-- :class="passwordClasses"
       @click="showPassword = !showPassword"-->
 
-      <b-button :disabled="!valid">Login</b-button>
+      <b-button @click="onSubmit">Login</b-button>
     </form>
   </div>
 </template>
 <script>
 export default {
+  name: 'login',
   data () {
     return {
       valid: true,
+      //   validUsername: true,
+      //   validPassword: true,
       showPassword: false,
-      hasName: false,
       userInfo: {
-        email: '',
+        username: '',
         password: ''
       }
     }
@@ -39,12 +47,23 @@ export default {
     passwordClasses () {
       return showPassword ?
         'fas fa-eye' : 'fas fa-eye-slash'
+    },
+    validForm () {
+      return !!this.userInfo.username && !!this.userInfo.password;
     }
   },
   methods: {
     onSubmit () {
-      //validate
-      alert('you pressed a button!');
+      this.valid = this.validForm;
+      if (this.valid) {
+        this.$store.dispatch("authenticateUser", {
+          username: this.userInfo.username,
+          password: this.userInfo.password
+        })
+          .then(() => {
+            this.$router.push('/');
+          });
+      }
     }
   }
 }
@@ -53,8 +72,12 @@ export default {
 <style lang="scss" scoped>
 div.login {
   text-align: center;
-  padding-top: 10rem;
+  padding-top: 4rem;
 
+  img {
+    width: 100%;
+    height: 18rem;
+  }
   form {
     display: flex;
     justify-content: center;
@@ -80,6 +103,10 @@ div.login {
         border-radius: 5px;
         border-radius: 5px;
         padding: 0.3rem 1rem;
+
+        &.invalid {
+          border-color: red;
+        }
       }
     }
 

@@ -38,11 +38,14 @@ export default {
   modules: [
     // Doc: https://bootstrap-vue.js.org
     'bootstrap-vue/nuxt',
-    '@nuxtjs/axios',
-    '@nuxtjs/auth'
+    '@nuxtjs/axios'
   ],
-  auth: {
-    // Options
+  axios: {
+    baseURL:
+      process.env.BASE_URL ||
+      'https://the-movie-project-api.herokuapp.com/api/',
+    // || 'http://localhost:3001/api',
+    credentials: false
   },
   /*
    ** Build configuration

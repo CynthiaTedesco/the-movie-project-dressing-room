@@ -4,6 +4,18 @@
   </div>
 </template>
 
+<script>
+export default {
+  middleware: ['check-auth', 'auth']
+};
+</script>
+
+<style lang="scss" scoped>
+div {
+  max-width: 1140px;
+  margin: auto;
+}
+</style>
 <style>
 html {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',

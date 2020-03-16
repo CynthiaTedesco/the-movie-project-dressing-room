@@ -13,6 +13,9 @@ import movies from './movies/index'
 
 const createStore = () => {
   return new Vuex.Store({
+    state: {
+      token: null
+    },
     mutations,
     getters,
     actions,

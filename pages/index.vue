@@ -2,14 +2,6 @@
   <div class="container">
     <div>
       <logo />
-      <div v-if="$auth.loggedIn">
-        {{$auth.user.email}}
-        <a>Logout</a>
-        <!-- logout button -->
-      </div>
-      <div v-else>
-        <nuxt-link to="/login">Logout</nuxt-link>
-      </div>
       <h1 class="title">the-movie-project-dressing-room</h1>
       <h2 class="subtitle">The Movie Project Dressing Room</h2>
       <div class="links">
