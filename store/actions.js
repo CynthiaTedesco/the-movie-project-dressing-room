@@ -21,7 +21,6 @@ export default {
       })
       .then(result => {
         if (result.token) {
-          console.log('authenticateUser succesful!!!!');
           vuexContext.commit('setToken', result.token)
           localStorage.setItem('token', result.token)
           localStorage.setItem(
@@ -38,7 +37,6 @@ export default {
       .catch(e => console.log(e))
   },
   initAuth(vuexContext, req) {
-    console.log('initAuth')
     let token
     let expirationDate
     if (req) {
@@ -65,7 +63,6 @@ export default {
       vuexContext.dispatch('logout')
       return
     }
-    console.log('initAuth', 'succesful token!!!', token)
     vuexContext.commit('setToken', token)
   },
   logout(vuexContext) {

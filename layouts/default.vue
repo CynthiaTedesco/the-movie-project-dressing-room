@@ -1,5 +1,6 @@
 <template>
   <div>
+    <img src="movie-film.jpg" alt />
     <nuxt />
   </div>
 </template>
@@ -63,5 +64,9 @@ html {
 .button--grey:hover {
   color: #fff;
   background-color: #35495e;
+}
+img {
+  width: 100%;
+  height: 18rem;
 }
 </style>

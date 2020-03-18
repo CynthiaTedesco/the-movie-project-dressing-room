@@ -1,6 +1,6 @@
 <template>
   <div class="login">
-    <img src="movie-film.jpg" alt />
+    <!-- <img src="movie-film.jpg" alt /> -->
     <form @submit.prevent>
       <div>
         <label for="username">User</label>
@@ -19,6 +19,7 @@
           label="Password"
           :type="showPassword ? 'text' : 'password'"
           :class="{invalid: !userInfo.password && !valid}"
+          @keyup.enter="onSubmit"
         />
         <font-awesome-icon
           :icon="['fas', showPassword ? 'eye' : 'eye-slash']"
@@ -54,10 +55,6 @@ export default {
     }
   },
   computed: {
-    passwordClasses () {
-      return this.showPassword ?
-        'fas fa-eye' : 'fas fa-eye-slash'
-    },
     validForm () {
       return !!this.userInfo.username && !!this.userInfo.password;
     }
@@ -84,10 +81,6 @@ div.login {
   text-align: center;
   padding-top: 4rem;
 
-  img {
-    width: 100%;
-    height: 18rem;
-  }
   form {
     display: flex;
     justify-content: center;

@@ -3,7 +3,7 @@ export default {
     return state.list;
   },
   sortedList (state) {
-    return (sortBy = 'order') => {
+    return (sortBy = 'revenue') => {
       // TODO extend this getter with sorting by different types of fields
       const list = [ ...state.list ];
       const sortedList = list.sort((a, b) => a[sortBy] - b[sortBy]);
