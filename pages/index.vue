@@ -1,6 +1,11 @@
 <template>
   <div>
-    <b-table hover :items="movies" :fields="fields" :tbody-tr-class="rowClass">
+    <b-table
+      hover
+      :items="movies"
+      :fields="fields"
+      :tbody-tr-class="rowClass"
+    >
       <template v-slot:cell(title)="row">
         <span>
           <font-awesome-icon
@@ -58,8 +63,7 @@ export default {
     };
   },
   mounted () {
-    this.movies = this.$store.getters['movies/list'].map(movie => {
-      debugger;
+    this.movies = this.$store.getters['movies/sortedList']().map(movie => {
       return {
         title: movie.title,
         revenue: beautifyCashValue(movie.revenue),
