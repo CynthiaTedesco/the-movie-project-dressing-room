@@ -1,11 +1,20 @@
 <template>
-  <div>
-    <b-table
-      hover
-      :items="movies"
-      :fields="fields"
-      :tbody-tr-class="rowClass"
-    >
+  <div class="home">
+    <b-col lg="12" class="filters">
+      <b-form-group
+        label-cols-sm="3"
+        label-align-sm="right"
+        label-size="sm"
+        description="Leave all unchecked to filter on all data"
+        class="mb-0"
+      >
+        <b-form-checkbox-group class="mt-1">
+          <b-form-checkbox @change="updateValidFilter" value="valid">Only invalid</b-form-checkbox>
+          <b-form-checkbox @change="updateMissingFilter" value="missingData">Only with missing data</b-form-checkbox>
+        </b-form-checkbox-group>
+      </b-form-group>
+    </b-col>
+    <b-table hover :items="filteredMovies " :fields="fields" :tbody-tr-class="rowClass">
       <template v-slot:cell(title)="row">
         <span>
           <font-awesome-icon
@@ -31,9 +40,6 @@
   </div>
 </template>
 
-<style>
-</style>
-
 <script>
 import { mapGetters } from 'vuex'
 import { beautifyCashValue } from '@/assets/js/helpers.js'
@@ -58,8 +64,8 @@ export default {
         { key: 'valid' },
         { key: 'more' },
       ],
-      items: [{ name: "Joe", age: 33 }, { name: "Sue", age: 77 }],
-      movies: []
+      movies: [],
+      filters: [],
     };
   },
   mounted () {
@@ -74,6 +80,24 @@ export default {
       }
     });
   },
+  computed: {
+    filteredMovies () {
+      if (this.filters.length) {
+        return this.movies.filter(movie => {
+          return this.filters.reduce((total, current) => {
+            switch (current) {
+              case 'valid':
+                return total && !movie[current];
+              default:
+                return total && movie[current];
+            }
+          }, true);
+        });
+      } else {
+        return this.movies;
+      }
+    }
+  },
   methods: {
     missingData (item) {
       //TODO create helper function to check real missing data
@@ -82,16 +106,39 @@ export default {
     },
     rowClass (item, type) {
       return item.missingData ? 'missing-data' : '';
+    },
+    updateValidFilter (filter, ) {
+      if (filter) {
+        this.filters.push(filter);
+      } else {
+        this.filters.splice(this.filters.indexOf('valid'), 1);
+      }
+    },
+    updateMissingFilter (filter) {
+      if (filter) {
+        this.filters.push(filter);
+      } else {
+        this.filters.splice(this.filters.indexOf('missingData'), 1);
+      }
     }
   }
 };
 </script>
 
 <style lang="scss" scoped>
-/deep/ tr.missing-data {
-  background: rgba(255, 0, 0, 0.15);
-}
-.more {
-  cursor: pointer;
+.home {
+  margin-top: 2rem;
+  .filters {
+    text-align: right;
+    .custom-checkbox:last-child {
+      margin-right: 0;
+    }
+  }
+  /deep/ tr.missing-data {
+    background: rgba(255, 0, 0, 0.15);
+  }
+  .more {
+    cursor: pointer;
+  }
 }
 </style>
