@@ -43,9 +43,8 @@ export default {
   axios: {
     baseURL:
       process.env.BASE_URL ||
-      // 'https://the-movie-project-api.herokuapp.com/api/',
-    // || 
-    'http://localhost:3001/api',
+      'https://the-movie-project-api.herokuapp.com/api/',
+    // || 'http://localhost:3001/api',
     credentials: false
   },
   /*
