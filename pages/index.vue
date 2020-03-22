@@ -26,7 +26,10 @@
         </span>
       </template>
       <template v-slot:cell(valid)="row">
-        <input type="checkbox" name="valid" id="valid" :checked="row.item.valid" />
+        <input type="checkbox" 
+          name="valid" id="valid" 
+          :checked="row.item.valid" 
+          @change="toggleValidity(row.item.more.id)"/>
       </template>
       <template v-slot:cell(releaseDate)="row">{{(new Date(row.item.releaseDate)).getFullYear()}}</template>
       <template v-slot:cell(more)="row">
@@ -99,6 +102,10 @@ export default {
     }
   },
   methods: {
+    toggleValidity (id) {
+      this.$axios.post('/toggleValidity', { movie: id })
+        .catch(err => { console.log("something failed while toggling validity", err) });
+    },
     missingData (item) {
       //TODO create helper function to check real missing data
       const missingData = Math.random() > 0.5;
