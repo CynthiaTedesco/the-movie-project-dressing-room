@@ -2,7 +2,10 @@ import Cookie from 'js-cookie'
 
 export default {
   async nuxtServerInit(vuexContext, context) {
-    const movies = await context.app.$axios.$get('/movies')
+    let movies = await context.app.$axios.$get('/movies')
+    movies = await Promise.all(movies.map(movie => {
+      return context.app.$axios.$get(`/movies/${movie.id}`);
+    }));
     await vuexContext.commit('movies/setMovies', movies)
   },
   authenticateUser(vuexContext, authData) {

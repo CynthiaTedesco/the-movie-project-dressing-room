@@ -16,26 +16,29 @@
     </b-col>
     <b-table hover :items="filteredMovies " :fields="fields" :tbody-tr-class="rowClass">
       <template v-slot:cell(title)="row">
-        <span>
+        <span class="title">
           <font-awesome-icon
             v-if="!row.item.valid"
-            :icon="['fas', 'exclamation']"
+            :icon="['fas', 'exclamation-circle']"
             title="Invalid movie"
           />
           {{row.item.title}}
         </span>
       </template>
       <template v-slot:cell(valid)="row">
-        <input type="checkbox" 
-          name="valid" id="valid" 
-          :checked="row.item.valid" 
-          @change="toggleValidity(row.item.more.id)"/>
+        <input
+          type="checkbox"
+          name="valid"
+          id="valid"
+          :checked="row.item.valid"
+          @change="toggleValidity(row.item.more.id)"
+        />
       </template>
       <template v-slot:cell(releaseDate)="row">{{(new Date(row.item.releaseDate)).getFullYear()}}</template>
       <template v-slot:cell(more)="row">
         <font-awesome-icon
           class="more"
-          :icon="['fas', row.item.missingData ? 'edit' : 'eye']"
+          :icon="['fas', row.item.missingData.length ? 'edit' : 'eye']"
           @click="openModal(row.item.more)"
         />
       </template>
@@ -45,15 +48,15 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { beautifyCashValue } from '@/assets/js/helpers.js'
+import { beautifyCashValue, calculateMissingData } from '@/assets/js/helpers.js'
 import Vue from 'vue';
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faEdit, faEye, faExclamation } from '@fortawesome/free-solid-svg-icons'
+import { faEdit, faEye, faExclamationCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 library.add(faEdit)
 library.add(faEye)
-library.add(faExclamation)
+library.add(faExclamationCircle)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
@@ -78,7 +81,7 @@ export default {
         revenue: beautifyCashValue(movie.revenue),
         releaseDate: movie.release_date,
         valid: movie.valid,
-        missingData: this.missingData(movie),
+        missingData: calculateMissingData(movie),
         more: movie
       }
     });
@@ -103,16 +106,11 @@ export default {
   },
   methods: {
     toggleValidity (id) {
-      this.$axios.post('/toggleValidity', { movie: id })
+      this.$axios.post(`/movies/${id}/toggleValidity`)
         .catch(err => { console.log("something failed while toggling validity", err) });
     },
-    missingData (item) {
-      //TODO create helper function to check real missing data
-      const missingData = Math.random() > 0.5;
-      return missingData
-    },
     rowClass (item, type) {
-      return item.missingData ? 'missing-data' : '';
+      return item.missingData.length ? 'missing-data' : '';
     },
     updateValidFilter (filter, ) {
       if (filter) {
@@ -135,6 +133,17 @@ export default {
 <style lang="scss" scoped>
 .home {
   margin-top: 2rem;
+
+  .title {
+    position: relative;
+
+    .fa-exclamation-circle {
+      position: absolute;
+      left: -40px;
+      top: 3px;
+      color: red;
+    }
+  }
   .filters {
     text-align: right;
     .custom-checkbox:last-child {

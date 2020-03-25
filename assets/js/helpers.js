@@ -10,3 +10,143 @@ export function beautifyCashValue(labelValue) {
     ? Math.floor(Math.abs(Number(labelValue)) / 1.0e3) + 'K$'
     : Math.floor(Math.abs(Number(labelValue)))
 }
+export function calculateMissingData(movie) {
+  let missingFields = []
+  if (!movie.release_date) {
+    missingFields.push({ attr: 'release_date', cause: 'missing' })
+  }
+  if (!movie.length) {
+    missingFields.push({ attr: 'length', cause: 'missing' })
+  }
+  if (!movie.overview) {
+    missingFields.push({ attr: 'overview', cause: 'missing' })
+  }
+  if (!movie.plot_line) {
+    missingFields.push({ attr: 'plot_line', cause: 'missing' })
+  }
+  if (!movie.budget) {
+    missingFields.push({ attr: 'budget', cause: 'missing' })
+  }
+  if (!movie.cast_quantity) {
+    missingFields.push({ attr: 'cast_quantity', cause: 'missing' })
+  }
+  if (!movie.website) {
+    missingFields.push({ attr: 'website', cause: 'missing' })
+  }
+  if (!movie.word_count) {
+    missingFields.push({ attr: 'word_count', cause: 'missing' })
+  }
+  if (!movie.most_used_word) {
+    missingFields.push({ attr: 'most_used_word', cause: 'missing' })
+  }
+  if (!movie.revenue) {
+    missingFields.push({ attr: 'revenue', cause: 'missing' })
+  }
+  if (!movie.poster || !movie.poster.url) {
+    missingFields.push({ attr: 'poster', cause: 'missing' })
+  } else if (!movie.poster.poster_type_id) {
+    missingFields.push({ attr: 'poster.poster_type_id', cause: 'missing' })
+  }
+  if (!movie.story_origin) {
+    missingFields.push({ attr: 'story_origin', cause: 'missing' })
+  }
+  if (!movie.type) {
+    missingFields.push({ attr: 'type', cause: 'missing' })
+  }
+  if (!movie.set_in_place) {
+    missingFields.push({ attr: 'set_in_place', cause: 'missing' })
+  }
+  if (!movie.set_in_time) {
+    missingFields.push({ attr: 'set_in_time', cause: 'missing' })
+  }
+  if (!movie.genres.length) {
+    missingFields.push({ attr: 'genres', cause: 'missing' })
+  } else {
+    if (!movie.genres.find(genre => genre.movies_genres.primary)) {
+      missingFields.push({ attr: 'primary_genre', cause: 'missing' })
+    }
+  }
+  if (!movie.languages.length) {
+    missingFields.push({ attr: 'languages', cause: 'missing' })
+  } else {
+    if (!movie.languages.find(language => language.movies_languages.primary)) {
+      missingFields.push({ attr: 'primary_language', cause: 'missing' })
+    }
+  }
+  if (!movie.restrictions.length) {
+    missingFields.push({ attr: 'restrictions', cause: 'missing' })
+  } else {
+    if (
+      !movie.restrictions.find(
+        restriction => restriction.movies_restrictions.primary
+      )
+    ) {
+      missingFields.push({ attr: 'primary_restriction', cause: 'missing' })
+    }
+  }
+  if (!movie.characters.length) {
+    missingFields.push({ attr: 'characters', cause: 'missing' })
+  } else {
+    const mainCharacter = movie.characters.find(
+      character => character.movies_characters.main
+    )
+    if (!mainCharacter) {
+      missingFields.push({ attr: 'main_character', cause: 'missing' })
+    } else {
+      if (!mainCharacter.name) {
+        missingFields.push({ attr: 'main_character_name', cause: 'missing' })
+      }
+      if (!mainCharacter.data_of_birth) {
+        missingFields.push({ attr: 'main_character_birth', cause: 'missing' })
+      }
+      if (!mainCharacter.gender) {
+        missingFields.push({ attr: 'main_character_gender', cause: 'missing' })
+      }
+      if (!mainCharacter.movies_characters.type) {
+        missingFields.push({ attr: 'main_character_type', cause: 'missing' })
+      }
+    }
+  }
+
+  if (!movie.directors.length) {
+    missingFields.push({ attr: 'directors', cause: 'missing' })
+  } else {
+    const mainDirector = movie.directors.find(
+      director => director.movies_directors.main
+    )
+    if (!mainDirector) {
+      missingFields.push({ attr: 'main_director', cause: 'missing' })
+    } else {
+      if (!mainDirector.name) {
+        missingFields.push({ attr: 'main_director_name', cause: 'missing' })
+      }
+      if (!mainDirector.data_of_birth) {
+        missingFields.push({ attr: 'main_director_birth', cause: 'missing' })
+      }
+      if (!mainDirector.gender) {
+        missingFields.push({ attr: 'main_director_gender', cause: 'missing' })
+      }
+    }
+  }
+
+  if (!movie.writers.length) {
+    missingFields.push({ attr: 'writers', cause: 'missing' })
+  } else {
+    const mainWriter = movie.writers.find(writer => writer.movies_writers.main)
+    if (!mainWriter) {
+      missingFields.push({ attr: 'main_writer', cause: 'missing' })
+    } else {
+      if (!mainWriter.name) {
+        missingFields.push({ attr: 'main_writer_name', cause: 'missing' })
+      }
+      if (!mainWriter.data_of_birth) {
+        missingFields.push({ attr: 'main_writer_birth', cause: 'missing' })
+      }
+      if (!mainWriter.gender) {
+        missingFields.push({ attr: 'main_writer_gender', cause: 'missing' })
+      }
+    }
+  }
+
+  return missingFields
+}
