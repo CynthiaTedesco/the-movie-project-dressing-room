@@ -39,16 +39,21 @@
         <font-awesome-icon
           class="more"
           :icon="['fas', row.item.missingData.length ? 'edit' : 'eye']"
-          @click="openModal(row.item.more)"
+          @click="displayDetailSection(row.item)"
         />
       </template>
     </b-table>
+    <the-movie-detail
+      :show="displayDetail"
+      :movie="currentMovie" 
+      @close="displayDetail = false" />
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import { beautifyCashValue, calculateMissingData } from '@/assets/js/helpers.js'
+import TheMovieDetail from '@/components/TheMovieDetail';
 import Vue from 'vue';
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faEdit, faEye, faExclamationCircle } from '@fortawesome/free-solid-svg-icons'
@@ -61,6 +66,7 @@ library.add(faExclamationCircle)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 export default {
+  components: {TheMovieDetail},
   data () {
     return {
       fields: [
@@ -70,6 +76,8 @@ export default {
         { key: 'valid' },
         { key: 'more' },
       ],
+      displayDetail: false,
+      currentMovie: null,
       movies: [],
       filters: [],
     };
@@ -105,6 +113,10 @@ export default {
     }
   },
   methods: {
+    displayDetailSection(item){
+      this.displayDetail = !this.displayDetail;
+      this.currentMovie = this.displayDetail ? item : null;
+    },
     toggleValidity (id) {
       this.$axios.post(`/movies/${id}/toggleValidity`)
         .catch(err => { console.log("something failed while toggling validity", err) });
