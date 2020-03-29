@@ -12,9 +12,26 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '~/assets/styles/common.scss';
+
 div {
   max-width: 1140px;
   margin: auto;
+}
+.dressing-alert.toasted.toasted-primary {
+  display:flex;
+  font-size: 16px;
+  justify-content: center;
+  min-height: 50px;
+  font-weight: 400;
+
+  &.success {
+    background-color: $green;
+  }
+
+  &.error {
+    background-color: $red;
+  }
 }
 </style>
 <style>

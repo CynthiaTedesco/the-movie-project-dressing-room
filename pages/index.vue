@@ -15,18 +15,16 @@
       </b-form-group>
     </b-col>
     <b-table hover :items="filteredMovies " :fields="fields" :tbody-tr-class="rowClass">
+      <template v-slot:cell(position)="row">
+        <span v-if="row.item.position" class="position">#{{row.item.position}}</span>
+        <font-awesome-icon v-else :icon="['fas', 'exclamation-circle']" title="Invalid movie" />
+      </template>
       <template v-slot:cell(title)="row">
-        <span class="title">
-          <font-awesome-icon
-            v-if="!row.item.valid"
-            :icon="['fas', 'exclamation-circle']"
-            title="Invalid movie"
-          />
-          {{row.item.title}}
-        </span>
+        <span class="title">{{row.item.title}}</span>
       </template>
       <template v-slot:cell(valid)="row">
         <input
+          class="validity-checkbox"
           type="checkbox"
           name="valid"
           id="valid"
@@ -41,12 +39,10 @@
           :icon="['fas', row.item.missingData.length ? 'edit' : 'eye']"
           @click="displayDetailSection(row.item)"
         />
+        <font-awesome-icon class="trash" :icon="['fas', 'trash']" @click="deleteMovie(row.item)" />
       </template>
     </b-table>
-    <the-movie-detail
-      :show="displayDetail"
-      :movie="currentMovie" 
-      @close="displayDetail = false" />
+    <the-movie-detail :show="displayDetail" :movie="currentMovie" @close="displayDetail = false" />
   </div>
 </template>
 
@@ -56,20 +52,22 @@ import { beautifyCashValue, calculateMissingData } from '@/assets/js/helpers.js'
 import TheMovieDetail from '@/components/TheMovieDetail';
 import Vue from 'vue';
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faEdit, faEye, faExclamationCircle } from '@fortawesome/free-solid-svg-icons'
+import { faEdit, faEye, faExclamationCircle, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 library.add(faEdit)
 library.add(faEye)
+library.add(faTrash)
 library.add(faExclamationCircle)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 export default {
-  components: {TheMovieDetail},
+  components: { TheMovieDetail },
   data () {
     return {
       fields: [
+        { key: 'position', sortable: true, label: '#' },
         { key: 'title', sortable: true },
         { key: 'releaseDate', sortable: true, label: 'Year' },
         { key: 'revenue', sortable: true },
@@ -83,8 +81,10 @@ export default {
     };
   },
   mounted () {
+    let position = 1;
     this.movies = this.$store.getters['movies/sortedList']().map(movie => {
       return {
+        position: movie.valid ? position++ : null,
         title: movie.title,
         revenue: beautifyCashValue(movie.revenue),
         releaseDate: movie.release_date,
@@ -113,12 +113,34 @@ export default {
     }
   },
   methods: {
-    displayDetailSection(item){
+    updateMoviePositions (toggled) {
+      let position = 1;
+      this.movies = this.movies.map(m => {
+        if (m.more.id === toggled) {
+          m.valid = !m.valid;
+        }
+        m.position = m.valid ? position++ : null;
+        return m;
+      });
+    },
+    deleteMovie (movie) {
+      this.$store.dispatch('movies/deleteMovie', movie.more.id).then(() => {
+        this.movies = this.movies.filter(fm => fm.more.id !== movie.more.id);
+        if (movie.position) {
+          this.updateMoviePositions();
+        }
+        this.$toast.success(`${movie.more.title} successfuly removed`);
+      })
+    },
+    displayDetailSection (item) {
       this.displayDetail = !this.displayDetail;
       this.currentMovie = this.displayDetail ? item : null;
     },
     toggleValidity (id) {
       this.$axios.post(`/movies/${id}/toggleValidity`)
+        .then(() => {
+          this.updateMoviePositions(id);
+        })
         .catch(err => { console.log("something failed while toggling validity", err) });
     },
     rowClass (item, type) {
@@ -146,15 +168,11 @@ export default {
 .home {
   margin-top: 2rem;
 
+  .fa-exclamation-circle {
+    color: red;
+  }
   .title {
     position: relative;
-
-    .fa-exclamation-circle {
-      position: absolute;
-      left: -40px;
-      top: 3px;
-      color: red;
-    }
   }
   .filters {
     text-align: right;
@@ -165,7 +183,13 @@ export default {
   /deep/ tr.missing-data {
     background: rgba(255, 0, 0, 0.15);
   }
-  .more {
+  .more,
+  .trash {
+    cursor: pointer;
+    margin-right: 1rem;
+  }
+
+  .validity-checkbox {
     cursor: pointer;
   }
 }

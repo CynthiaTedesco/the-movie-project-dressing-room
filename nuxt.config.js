@@ -1,3 +1,5 @@
+const toastSettings = require('./config/toast').default
+
 export default {
   mode: 'universal',
   /*
@@ -38,13 +40,16 @@ export default {
   modules: [
     // Doc: https://bootstrap-vue.js.org
     'bootstrap-vue/nuxt',
-    '@nuxtjs/axios'
+    '@nuxtjs/axios',
+    '@nuxtjs/toast'
   ],
+  toast: toastSettings,
   axios: {
     baseURL:
       process.env.BASE_URL ||
       'https://the-movie-project-api.herokuapp.com/api/',
-    // || 'http://localhost:3001/api',
+      // ||
+      // 'http://localhost:3001/api',
     credentials: false
   },
   /*
