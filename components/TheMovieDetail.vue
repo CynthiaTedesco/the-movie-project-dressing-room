@@ -8,17 +8,23 @@
         <div class="row justify-content-md-center no-gutters sidenav">
           <div class="col-12 header">
             <nav class="navbar navbar-expand-md">
-              <h2>#{{movie.title}}</h2>
+              <h2>#{{movie.position}} {{movie.title}}</h2>
               <font-awesome-icon class="close" :icon="['fas', 'times']" @click="$emit('close')" />
             </nav>
           </div>
           <div class="col-12 menu-content">
-            <ul class="nav flex-column sidebar-nav" @click="$emit('close')">
-              {{movie.title}}
-              <!-- <li v-for="menuItem in menuItems" :key="menuItem.title" class="nav-item">
-                <nuxt-link :to="menuItem.route" class="nav-link">{{ $t(menuItem.title) }}</nuxt-link>
-              </li>-->
-            </ul>
+            <div role="tablist">
+              <b-card no-body class="mb-1" v-for="item in fields" :key="item">
+                <b-card-header header-tag="header" class="p-1" role="tab">
+                  <b-button block href="#" v-b-toggle="item" variant="info">{{item}}</b-button>
+                </b-card-header>
+                <b-collapse :id="item" visible accordion="my-accordion" role="tabpanel">
+                  <b-card-body>
+                    <b-card-text>{{movie.more[item]}}</b-card-text>
+                  </b-card-body>
+                </b-collapse>
+              </b-card>
+            </div>
           </div>
           <div class="col-12 footer d-none d-md-flex">
             <nav class="navbar navbar-expand-md">
@@ -42,6 +48,11 @@ library.add(faTimes)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 export default {
+  data () {
+    return {
+      fields: ['genres', 'poster'],
+    }
+  },
   props: {
     show: {
       type: Boolean,
@@ -56,7 +67,7 @@ export default {
     save () {
       this.$emit('close');
       this.$toast.success(`${this.movie.title} has been succesfully updated!`);
-      
+
       //TODO
       console.log('saving', this.movie.title);
     }
