@@ -14,21 +14,20 @@
           </div>
           <div class="col-12 menu-content">
             <div class="insights">
-              <label for="overview">Overview:</label>
-              <div id="overview" @click="editing='overview'">
-                <textarea
-                  rows="5"
-                  v-if="editing==='overview'"
-                  type="text"
-                  :value="movie.more.overview"
-                  @keyup.esc="editing=''"
-                  @blur="editing=''"
-                />
-                <template v-else>
-                  <span v-if="this.movie.more.overview">{{this.movie.more.overview}}</span>
-                  <span v-else>Missing</span>
-                </template>
-              </div>
+              <input-detail
+                label="Revenue"
+                field="revenue"
+                @change="onChange"
+                :initial-value="movie.more.revenue"
+                :money="true"
+              />
+              <input-detail
+                label="Overview"
+                field="overview"
+                :rows="5"
+                @change="onChange"
+                :initial-value="movie.more.overview"
+              />
             </div>
             <div role="tablist">
               <b-card no-body class="mb-1" v-for="item in fields" :key="item.title">
@@ -41,7 +40,7 @@
                 </b-card-header>
                 <b-collapse :id="item.title" visible accordion="my-accordion" role="tabpanel">
                   <b-card-body>
-                    <component :is="item.component" v-bind="movie.more" />
+                    <component :is="item.component" v-bind="movie.more" @change="onChange"/>
                   </b-card-body>
                 </b-collapse>
               </b-card>
@@ -61,20 +60,28 @@
 
 <script>
 import Vue from 'vue';
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import OtherDetails from '@/components/MovieDetails/OtherDetails';
 import ReleaseDetail from '@/components/MovieDetails/ReleaseDetail';
 import ProductionDetail from '@/components/MovieDetails/ProductionDetail';
 import ScriptDetail from '@/components/MovieDetails/ScriptDetail';
 import StoryDetail from '@/components/MovieDetails/StoryDetail';
+import InputDetail from '@/components/MovieDetails/Form/InputDetail';
 
 library.add(faTimes)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 export default {
-  components: { OtherDetails, ReleaseDetail, ProductionDetail, ScriptDetail, StoryDetail },
+  components: {
+    OtherDetails,
+    ReleaseDetail,
+    ProductionDetail,
+    ScriptDetail,
+    StoryDetail,
+    InputDetail
+  },
   data () {
     return {
       fields: [
@@ -84,7 +91,7 @@ export default {
         { title: 'Release', component: 'ReleaseDetail' },
         { title: 'Other Data', component: 'OtherDetails' }
       ],
-      editing: ''
+      changes: {}
     }
   },
   props: {
@@ -113,8 +120,18 @@ export default {
         default: return ''
       }
     },
+    onChange ({ field, value, reset }) {
+      if (reset && this.changes[field]) {
+        delete this.changes[field];
+      } else {
+        if (!this.changes[field]) {
+          this.changes[field] = [];
+        }
+        this.changes[field].push(value);
+      }
+    },
     close () {
-      this.editing = '';
+      this.changes = {};
       this.$emit('close');
     },
     save () {
@@ -210,10 +227,20 @@ export default {
   .menu-content {
     padding: 3rem;
 
-    .insights {
+    .missing-field {
+      color: $red;
+      font-style: italic;
+
+      small {
+        color: gray;
+        font-style: normal;
+      }
+    }
+
+    /deep/ .detail-row {
       display: grid;
-      grid-template-columns: 80px auto;
-      margin-bottom: 2rem;
+      grid-template-columns: 80px auto 1px;
+      margin-bottom: 0.5rem;
 
       label {
         font-weight: bold;
@@ -260,10 +287,6 @@ export default {
             box-shadow: none;
           }
         }
-      }
-
-      div {
-        background: rgba(230, 230, 230, 0.47);
       }
     }
   }
