@@ -13,6 +13,7 @@
             </nav>
           </div>
           <div class="col-12 menu-content">
+            <div v-if="showSave" class="save-btn" @click="save">Save changes?</div>
             <div class="insights">
               <input-detail
                 label="Revenue"
@@ -40,7 +41,7 @@
                 </b-card-header>
                 <b-collapse :id="item.title" visible accordion="my-accordion" role="tabpanel">
                   <b-card-body>
-                    <component :is="item.component" v-bind="movie.more" @change="onChange"/>
+                    <component :is="item.component" v-bind="movie.more" @change="onChange" />
                   </b-card-body>
                 </b-collapse>
               </b-card>
@@ -48,7 +49,6 @@
           </div>
           <div class="col-12 footer d-none d-md-flex">
             <nav class="navbar navbar-expand-md">
-              <button type="button" class="btn btn-primary" @click="save">Save</button>
               <button type="button" class="btn btn-light" @click="close">Cancel</button>
             </nav>
           </div>
@@ -91,7 +91,8 @@ export default {
         { title: 'Release', component: 'ReleaseDetail' },
         { title: 'Other Data', component: 'OtherDetails' }
       ],
-      changes: {}
+      changes: {},
+      showSave: false
     }
   },
   props: {
@@ -121,17 +122,22 @@ export default {
       }
     },
     onChange ({ field, value, reset }) {
-      if (reset && this.changes[field]) {
-        delete this.changes[field];
+      if (reset || this.movie.more[field] === value) {
+        if (this.changes[field]) {
+          delete this.changes[field];
+        }
       } else {
         if (!this.changes[field]) {
           this.changes[field] = [];
         }
         this.changes[field].push(value);
       }
+
+      this.showSave = Object.keys(this.changes).length > 0;
     },
     close () {
       this.changes = {};
+      this.showSave = false;
       this.$emit('close');
     },
     save () {
@@ -141,8 +147,7 @@ export default {
       //TODO
       console.log('saving', this.movie.title);
     }
-  }
-}
+  }}
 </script>
 
 <style lang="scss" scoped>
@@ -159,14 +164,25 @@ export default {
 
 .footer {
   padding: 0.5rem 1rem;
-  .navbar {
-    margin-left: auto;
-  }
 }
 .close {
   position: absolute;
   right: 30px;
   font-size: 35px;
+}
+
+.save-btn {
+  background-color: $blue;
+  border-radius: 10px;
+  position: fixed;
+  bottom: 21px;
+  right: 25px;
+  color: white;
+  font-size: 14px;
+  font-style: italic;
+  padding: 10px;
+  z-index: 1;
+  cursor: pointer;
 }
 
 .sidenav-container {

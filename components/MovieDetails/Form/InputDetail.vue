@@ -19,7 +19,12 @@
         </span>
       </template>
     </div>
-    <font-awesome-icon v-if="showReset && !editing" class="reset" :icon="['fa', 'undo']" @click="reset" />
+    <font-awesome-icon
+      v-if="showReset && !editing"
+      class="reset"
+      :icon="['fa', 'undo']"
+      @click="reset"
+    />
   </div>
 </template>
 
@@ -79,7 +84,7 @@ export default {
         this.value = this.initialValue;
       }
 
-      this.showReset = true;
+      this.showReset = this.value != this.initialValue;
       this.$emit('change', {
         field: this.field,
         value: this.value,
