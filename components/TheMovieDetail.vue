@@ -141,11 +141,25 @@ export default {
       this.$emit('close');
     },
     save () {
-      this.$emit('close');
-      this.$toast.success(`${this.movie.title} has been succesfully updated!`);
-
-      //TODO
+      let revenueHasChanged = false;
       console.log('saving', this.movie.title);
+      //prepare changes
+      Object.keys(this.changes).forEach(field => {
+        if(field==='revenue'){
+          revenueHasChanged = true;
+        }
+        this.changes[field] = this.changes[field].pop();
+      });
+
+      this.$store.dispatch('movies/updateMovie', {
+        id: this.movie.more.id,
+        updates: this.changes
+      }).then(updatedMovie => {
+        this.$parent.updatedMovie(updatedMovie, revenueHasChanged);
+        this.$toast.success(`${this.movie.title} has been succesfully updated!`);
+      })
+
+      this.close();
     }
   }}
 </script>

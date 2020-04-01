@@ -43,7 +43,6 @@ export default {
   },
   methods: {
     onChange (params) {
-      debugger;
       this.$emit('change', params)
     }
   }

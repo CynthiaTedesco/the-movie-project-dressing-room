@@ -113,15 +113,38 @@ export default {
     }
   },
   methods: {
-    updateMoviePositions (toggled) {
+    updateMoviePositions (updated, toggle) {
       let position = 1;
+
       this.movies = this.movies.map(m => {
-        if (m.more.id === toggled) {
-          m.valid = !m.valid;
+        if (toggle) {
+          if (m.more.id === updated) {
+            m.valid = !m.valid;
+          }
         }
         m.position = m.valid ? position++ : null;
         return m;
       });
+    },
+    updatedMovie (updated, sort) {
+      let updatedMovies = this.movies.map(m => {
+        if (m.more.id === updated.id) {
+          m.more = updated; //TODO FIX missing associations in updated
+          m.revenue = beautifyCashValue(updated.revenue);
+          m.releaseDate = updated.release_date;
+          //TODO uncomment when associations are added
+          // m.missingData = calculateMissingData(updated);
+        }
+        return m;
+      });
+
+      if (sort) {
+        updatedMovies = updatedMovies
+          .sort((a, b) => -parseInt(a.revenue) + parseInt(b.revenue))
+        this.movies = updatedMovies;
+        this.updateMoviePositions(updated.id);
+      }
+      this.movies = updatedMovies;
     },
     deleteMovie (movie) {
       this.$store.dispatch('movies/deleteMovie', movie.more.id).then(() => {
@@ -139,7 +162,7 @@ export default {
     toggleValidity (id) {
       this.$axios.post(`/movies/${id}/toggleValidity`)
         .then(() => {
-          this.updateMoviePositions(id);
+          this.updateMoviePositions(id, true);
         })
         .catch(err => { console.log("something failed while toggling validity", err) });
     },
