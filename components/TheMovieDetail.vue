@@ -121,8 +121,19 @@ export default {
         default: return ''
       }
     },
-    onChange ({ field, value, reset }) {
-      if (reset || this.movie.more[field] === value) {
+    onChange ({ field, value, reset, attribute, newId, subfield }) {
+      const changedPrimary = attribute && newId && attribute === 'primary';
+
+      let saveValueAsInitial = false;
+      if (value) {
+        saveValueAsInitial = this.movie.more[field] === value;
+      } else if (changedPrimary) {
+        const previousPrimaryIndex =
+          saveValueAsInitial = this.movie.more[field]
+            .indexOf(a => a[subfield].primary) === newId;
+      }
+      
+      if (reset || saveValueAsInitial) {
         if (this.changes[field]) {
           delete this.changes[field];
         }
@@ -130,7 +141,13 @@ export default {
         if (!this.changes[field]) {
           this.changes[field] = [];
         }
-        this.changes[field].push(value);
+        let toPush;
+        if (value) {
+          toPush = value;
+        } else if(changedPrimary){
+          toPush = {attribute: 'primary', newId};
+        }
+        this.changes[field].push(toPush);
       }
 
       this.showSave = Object.keys(this.changes).length > 0;
@@ -145,7 +162,7 @@ export default {
       console.log('saving', this.movie.title);
       //prepare changes
       Object.keys(this.changes).forEach(field => {
-        if(field==='revenue'){
+        if (field === 'revenue') {
           revenueHasChanged = true;
         }
         this.changes[field] = this.changes[field].pop();

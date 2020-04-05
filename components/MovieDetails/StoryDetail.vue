@@ -1,5 +1,14 @@
 <template>
   <div class="storyDetail detail">
+    <div class="genres">
+      <label for="genres">Genres:</label>
+      <AssocTable
+        :initial-items="genres"
+        @change="onChange"
+        field="genres"
+        associative-table-name="movies_genres"
+      ></AssocTable>
+    </div>
     <input-detail
       label="Plot"
       field="plot_line"
@@ -10,12 +19,12 @@
     <div></div>
     <div></div>
     <div></div>
-    <div></div>
   </div>
 </template>
 
 <script>
 import InputDetail from '@/components/MovieDetails/Form/InputDetail';
+import AssocTable from '@/components/MovieDetails/Form/AssocTable';
 
 export default {
   data () {
@@ -29,7 +38,8 @@ export default {
     }
   },
   components: {
-    InputDetail
+    InputDetail,
+    AssocTable
   },
   props: {
     id: Number,
@@ -50,4 +60,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+/deep/ label {
+  font-weight: bold;
+  font-size: 0.7em;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
 </style>
