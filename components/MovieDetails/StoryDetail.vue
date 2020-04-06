@@ -7,6 +7,7 @@
         @change="onChange"
         field="genres"
         associative-table-name="movies_genres"
+        dropdown-url="genres"
       ></AssocTable>
     </div>
     <input-detail

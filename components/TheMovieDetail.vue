@@ -121,18 +121,22 @@ export default {
         default: return ''
       }
     },
-    onChange ({ field, value, reset, attribute, newId, subfield }) {
-      const changedPrimary = attribute && newId && attribute === 'primary';
-
+    onChange ({ field, value, reset, subfield, list }) {
       let saveValueAsInitial = false;
       if (value) {
         saveValueAsInitial = this.movie.more[field] === value;
-      } else if (changedPrimary) {
-        const previousPrimaryIndex =
-          saveValueAsInitial = this.movie.more[field]
-            .indexOf(a => a[subfield].primary) === newId;
+      } else if (list) {
+        if (list.length !== this.movie.more[field].length) {
+          saveValueAsInitial = false; //we added or deleted something
+        } else {
+          const equality = this.movie.more[field].map((item, index) => {
+            return item.name === list[index].name &&
+              item[subfield].primary === list[index][subfield].primary
+          });
+          saveValueAsInitial = equality.reduce((curr, next) => curr && next, true);
+        }
       }
-      
+
       if (reset || saveValueAsInitial) {
         if (this.changes[field]) {
           delete this.changes[field];
@@ -144,8 +148,8 @@ export default {
         let toPush;
         if (value) {
           toPush = value;
-        } else if(changedPrimary){
-          toPush = {attribute: 'primary', newId};
+        } else if (list) {
+          toPush = { list };
         }
         this.changes[field].push(toPush);
       }
@@ -160,12 +164,17 @@ export default {
     save () {
       let revenueHasChanged = false;
       console.log('saving', this.movie.title);
+      
       //prepare changes
       Object.keys(this.changes).forEach(field => {
         if (field === 'revenue') {
           revenueHasChanged = true;
         }
+        //we only keep the last change 
         this.changes[field] = this.changes[field].pop();
+        if(this.changes[field].list){
+          this.changes[field] = this.changes[field].list;
+        }
       });
 
       this.$store.dispatch('movies/updateMovie', {

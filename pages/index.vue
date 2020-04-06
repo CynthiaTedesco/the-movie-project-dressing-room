@@ -47,7 +47,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import { beautifyCashValue, calculateMissingData } from '@/assets/js/helpers.js'
 import TheMovieDetail from '@/components/TheMovieDetail';
 import Vue from 'vue';
@@ -126,14 +125,15 @@ export default {
         return m;
       });
     },
-    updatedMovie (updated, sort) {
+    async updatedMovie (updated, sort) {
+      const fullMovie = await this.$axios.get(`movies/${updated.id}`);
+      
       let updatedMovies = this.movies.map(m => {
         if (m.more.id === updated.id) {
-          m.more = updated; //TODO FIX missing associations in updated
           m.revenue = beautifyCashValue(updated.revenue);
           m.releaseDate = updated.release_date;
-          //TODO uncomment when associations are added
-          // m.missingData = calculateMissingData(updated);
+          m.more = fullMovie.data;
+          m.missingData = calculateMissingData(fullMovie.data);
         }
         return m;
       });
