@@ -23,6 +23,7 @@
                 :money="true"
               />
               <input-detail
+                :textarea="true"
                 label="Overview"
                 field="overview"
                 :rows="5"
@@ -130,8 +131,17 @@ export default {
           saveValueAsInitial = false; //we added or deleted something
         } else {
           const equality = this.movie.more[field].map((item, index) => {
-            return item.name === list[index].name &&
-              item[subfield].primary === list[index][subfield].primary
+            const plainEquality =
+              item.name === list[index].name &&
+              item.gender === list[index].gender &&
+              item.date_of_birth === list[index].date_of_birth;
+            const relationEquality =
+              item[subfield].primary === list[index][subfield].primary &&
+              item[subfield].main === list[index][subfield].main &&
+              item[subfield].character_name === list[index][subfield].character_name &&
+              item[subfield].type === list[index][subfield].type
+
+            return plainEquality && relationEquality
           });
           saveValueAsInitial = equality.reduce((curr, next) => curr && next, true);
         }
@@ -164,7 +174,7 @@ export default {
     save () {
       let revenueHasChanged = false;
       console.log('saving', this.movie.title);
-      
+
       //prepare changes
       Object.keys(this.changes).forEach(field => {
         if (field === 'revenue') {
@@ -172,7 +182,7 @@ export default {
         }
         //we only keep the last change 
         this.changes[field] = this.changes[field].pop();
-        if(this.changes[field].list){
+        if (this.changes[field].list) {
           this.changes[field] = this.changes[field].list;
         }
       });
@@ -194,6 +204,11 @@ export default {
 @import '~/assets/styles/common.scss';
 
 .header {
+  position: fixed;
+  width: 58vw;
+  background: white;
+  z-index: 1;
+
   .navbar {
     border-bottom: 1px solid #d0d0d0;
     h2 {
@@ -281,17 +296,7 @@ export default {
   background-color: $white;
 
   .menu-content {
-    padding: 3rem;
-
-    .missing-field {
-      color: $red;
-      font-style: italic;
-
-      small {
-        color: gray;
-        font-style: normal;
-      }
-    }
+    padding: 7rem 3rem;
 
     /deep/ .detail-row {
       display: grid;

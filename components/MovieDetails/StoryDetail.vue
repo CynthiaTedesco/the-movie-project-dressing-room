@@ -10,7 +10,18 @@
         dropdown-url="genres"
       ></AssocTable>
     </div>
+    <div class="characters">
+      <label for="characters">Characters:</label>
+      <CharactersTable
+        :initial-items="characters"
+        @change="onChange"
+        field="characters"
+        associative-table-name="movies_characters"
+        dropdown-url="characters"
+      ></CharactersTable>
+    </div>
     <input-detail
+      :textarea="true"
       label="Plot"
       field="plot_line"
       @change="onChange"
@@ -26,8 +37,10 @@
 <script>
 import InputDetail from '@/components/MovieDetails/Form/InputDetail';
 import AssocTable from '@/components/MovieDetails/Form/AssocTable';
+import CharactersTable from '@/components/MovieDetails/Form/CharactersTable';
 
 export default {
+  name: 'storyDetail',
   data () {
     return {
       // genres_value: null,
@@ -40,7 +53,8 @@ export default {
   },
   components: {
     InputDetail,
-    AssocTable
+    AssocTable,
+    CharactersTable
   },
   props: {
     id: Number,

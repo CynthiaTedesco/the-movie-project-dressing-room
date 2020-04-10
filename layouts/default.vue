@@ -1,6 +1,6 @@
 <template>
   <div>
-    <img src="movie-film.jpg" alt />
+    <!-- <img src="movie-film.jpg" alt /> -->
     <nuxt />
   </div>
 </template>
@@ -19,7 +19,7 @@ div {
   margin: auto;
 }
 .dressing-alert.toasted.toasted-primary {
-  display:flex;
+  display: flex;
   font-size: 16px;
   justify-content: center;
   min-height: 50px;
@@ -33,6 +33,7 @@ div {
     background-color: $red;
   }
 }
+
 </style>
 <style>
 html {
@@ -86,4 +87,5 @@ img {
   width: 100%;
   height: 18rem;
 }
+
 </style>

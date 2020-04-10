@@ -1,16 +1,28 @@
 <template>
   <div class="detail-row">
     <label :for="label">{{label}}:</label>
-    <div :id="label" @click="editing=true">
-      <textarea
-        :rows="rows"
-        v-if="editing"
-        type="text"
-        v-model="value"
-        @change="onChange"
-        @keyup.esc="editing=false"
-        @blur="editing=false"
-      />
+    <div :id="label" @click="startEditing">
+      <template v-if="editing">
+        <textarea
+          ref="textarea"
+          v-if="textarea"
+          :rows="rows"
+          type="text"
+          v-model="value"
+          @change="onChange"
+          @keyup.esc="editing=false"
+          @blur="editing=false"
+        />
+        <input
+          ref="input"
+          v-else
+          type="text"
+          v-model="value"
+          @change="onChange"
+          @keyup.esc="editing=false"
+          @blur="editing=false"
+        />
+      </template>
       <template v-else>
         <span v-if="value" :class="textClass">{{text}}</span>
         <span v-else class="missing-field">
@@ -43,7 +55,14 @@ export default {
     return {
       editing: false,
       showReset: false,
+      plainInitialValue: null,
       value: null
+    }
+  },
+  watch: {
+    initialValue (a, b) {
+      this.plainInitialValue = this.getPlainInitialValue();
+      this.value = this.plainInitialValue;
     }
   },
   props: {
@@ -51,7 +70,7 @@ export default {
       type: String,
       required: true
     },
-    initialValue: String,
+    initialValue: [String, Object],
     rows: {
       type: Number,
       default: 1
@@ -60,10 +79,15 @@ export default {
     field: {
       type: String,
       required: true
+    },
+    textarea: {
+      type: Boolean,
+      default: false
     }
   },
   mounted () {
-    this.value = this.initialValue || '';
+    this.plainInitialValue = this.getPlainInitialValue();
+    this.value = this.plainInitialValue;
   },
   computed: {
     text () {
@@ -71,24 +95,39 @@ export default {
     },
     textClass () {
       return this.money ? 'money' : '';
-    }
+    },
   },
   methods: {
+    getPlainInitialValue() {
+      return typeof this.initialValue === 'object' ?
+        this.initialValue[this.field] :
+        (this.initialValue || '');
+    },
+    startEditing () {
+      this.editing = true;
+      this.$nextTick(() => {
+        if (this.textarea) {
+          this.$refs.textarea.focus();
+        } else {
+          this.$refs.input.focus()
+        }
+      })
+    },
     reset () {
-      this.value = this.initialValue;
+      this.value = this.plainInitialValue;
       this.onChange();
       this.showReset = false;
     },
     onChange () {
       if (this.money && isNaN(this.value)) {
-        this.value = this.initialValue;
+        this.value = this.plainInitialValue;
       }
 
-      this.showReset = this.value != this.initialValue;
+      this.showReset = this.value != this.plainInitialValue;
       this.$emit('change', {
         field: this.field,
         value: this.value,
-        reset: this.value === this.initialValue
+        reset: this.value === this.plainInitialValue
       })
     },
     moneyValue () {

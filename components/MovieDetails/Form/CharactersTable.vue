@@ -1,7 +1,14 @@
 <template>
   <div class="assoc-table-container">
     <div class="add" @click="addRow">Add</div>
-    <b-table :items="items" :fields="fields" tbody-tr-class="assoc-table-row" class="assoc-table">
+    <b-table
+      hover
+      :items="items"
+      :fields="fields"
+      tbody-tr-class="assoc-table-row"
+      class="assoc-table"
+      @row-clicked="onRowClick"
+    >
       <template v-slot:cell(name)="row">
         <b-dropdown
           v-if="row.item.new"
@@ -14,12 +21,12 @@
             v-for="ditem of dropdownItems"
             :key="ditem.id"
             href="#"
-            @click="select(row.index, ditem)"
+            @click="selectNewArtist(row.index, ditem)"
           >{{ditem.name}}</b-dropdown-item>
         </b-dropdown>
         <span v-else>{{row.item.name}}</span>
       </template>
-      <template v-slot:cell(primary)="row">
+      <template v-slot:cell(main)="row">
         <input
           class="primary-checkbox"
           type="radio"
@@ -34,6 +41,22 @@
       </template>
     </b-table>
     <font-awesome-icon v-if="showReset" class="reset" :icon="['fa', 'undo']" @click="reset" />
+    <div class="spotted-details" v-if="spotted">
+      <span class="artist-name">{{spotted.name}}</span>
+      <input-detail
+        label="Character name"
+        field="character_name"
+        @change="characterNameChanged"
+        :initial-value="spotted"
+      />
+      <!-- <dropdown-detail
+        label="Type"
+        field="type"
+        @change="characterTypeChanged"
+        :initial-value="spotted.type"
+        :rows="1"
+      />-->
+    </div>
   </div>
 </template>
 
@@ -42,6 +65,8 @@ import Vue from 'vue';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faUndo, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import InputDetail from '@/components/MovieDetails/Form/InputDetail';
+import DropdownDetail from '@/components/MovieDetails/Form/DropdownDetail';
 
 library.add(faTrash)
 library.add(faUndo)
@@ -53,21 +78,24 @@ export default {
       items: [],
       primary: null,
       showReset: false,
+      spotted: null,
       dropdownItems: []
     }
   },
+  components: { InputDetail, DropdownDetail },
   props: {
     initialItems: {
       type: Array,
       required: true
     },
-    associativeTableName: {
-      type: String,
-      required: true
-    },
     fields: {
       type: Array,
-      default: () => ['name', 'primary', { key: 'id', label: '' }]
+      default: () => [
+        { key: 'name', label: "Actor/Actress" },
+        { key: 'gender', label: 'Gender' },
+        { key: 'date_of_birth', label: 'Age' },
+        { key: 'main', label: 'Lead' },
+        { key: 'id', label: '' }]
     },
     field: {
       type: String,
@@ -92,15 +120,41 @@ export default {
     });
     this.items = JSON.parse(JSON.stringify(this.initialItems)); //deep copy
     this.primary = this.initialPrimary;
+    
+    this.spotted = this.items
+      .filter(a => a.movies_characters.main)
+      .map(b => {
+        return {
+          id: b.id,
+          name: b.name,
+          ...b.movies_characters
+        };
+      })[0];
   },
   computed: {
     initialPrimary () {
       return this.initialItems
-        .find(item => item[this.associativeTableName].primary || item[this.associativeTableName].main).id;
+        .find(item => item.movies_characters.main).id;
     }
   },
   methods: {
-    select (assocIndex, dropdownItem) {
+    emitChange (reset = null) {
+      this.$emit('change', {
+        field: this.field,
+        subfield: 'movies_characters',
+        list: this.items,
+        reset: reset != null ? reset : this.asInitial()
+      })
+    },
+    onRowClick (record, index) {
+      console.log('change spotted!');
+      this.spotted = {
+        id: record.id,
+        name: record.name,
+        ...record.movies_characters
+      }
+    },
+    selectNewArtist (assocIndex, dropdownItem) {
       this.items = this.items.map((it, index) => {
         if (index === assocIndex) {
           it.name = dropdownItem.name;
@@ -109,28 +163,27 @@ export default {
         return it;
       });
       this.showReset = true;
-      this.$emit('change', {
-        field: this.field,
-        subfield: this.associativeTableName,
-        list: this.items,
-        reset: this.asInitial()
-      })
+      this.emitChange();
     },
     addRow () {
-      let itemToBePushed = {
+      this.items.push({
         new: true,
-        name: ''
-      }
-      itemToBePushed[this.associativeTableName] = { primary: false }
-      this.items.push(itemToBePushed);
+        name: '',
+        movies_characters: {
+          main: false,
+          character_name: null,
+          type: null
+        }
+      });
     },
     reset () {
       this.items = JSON.parse(JSON.stringify(this.initialItems)); //deep copy
       this.primary = this.initialPrimary;
-      this.$emit('change', {
-        field: this.field,
-        reset: true
-      })
+      this.emitChange(true);
+      // this.$emit('change', {
+      //   field: this.field,
+      //   reset: true
+      // })
       this.showReset = false;
     },
     deleteItem (item) {
@@ -140,46 +193,62 @@ export default {
       if (!item.new) {
         this.showReset = true;
       }
-      this.$emit('change', {
-        field: this.field,
-        subfield: this.associativeTableName,
-        list: this.items,
-        reset: this.asInitial()
-      })
+      this.emitChange();
     },
-    primaryChanged (newPrimary, item) {
+    primaryChanged (newMain, item) {
       this.items = this.items.map(item => {
-        item[this.associativeTableName].primary = newPrimary === item.id;
+        item.movies_characters.main = newMain === item.id;
         return item;
       });
-      this.primary = newPrimary;
-      this.showReset = newPrimary != this.initialPrimary;
-      this.$emit('change', {
-        field: this.field,
-        subfield: this.associativeTableName,
-        list: this.items,
-        reset: this.asInitial()
-      })
+      this.primary = newMain;
+      this.showReset = newMain != this.initialPrimary;
+      this.emitChange();
     },
     asInitial () {
       let equal = true;
       if (this.items.length != this.initialItems.length) {
         equal = false;
       } else {
-        const newPrimary = this.items.find(item => item[this.associativeTableName].primary).id;
-        if (newPrimary != this.initialPrimary) {
-          equal = false;
-        }
+        // const newPrimary = this.items.find(item => item.movies_characters.main).id;
+        // if (newPrimary != this.initialPrimary) {
+        //   equal = false;
+        // }
 
-        //check if the elements are all the same
-        const newIds = this.items.map(it1 => it1.id).sort((a, b) => a - b).join('');
-        const oldIds = this.initialItems.map(it1 => it1.id).sort((a, b) => a - b).join('');
-        if (newIds != oldIds) {
-          equal = false;
-        }
+        // //check if the elements are all the same
+        // const newIds = this.items.map(it1 => it1.id).sort((a, b) => a - b).join('');
+        // const oldIds = this.initialItems.map(it1 => it1.id).sort((a, b) => a - b).join('');
+        // if (newIds != oldIds) {
+        //   equal = false;
+        // }
+
+        //compare item by item
+        this.items.map((newItem, index) => {
+          if (JSON.stringify(newItem) != JSON.stringify(this.initialItems[index])) {
+            equal = false;
+          }
+        });
       }
 
       return equal;
+    },
+    characterNameChanged (data) {
+      this.items = this.items.map(item => {
+        if (item.id === this.spotted.id) {
+          item.movies_characters.character_name = data.value;
+        }
+        return item;
+      });
+      this.emitChange();
+    },
+    characterTypeChanged () {
+      console.log('character type changed!');
+      this.items = this.items.map(item => {
+        if (item.id === this.spotted.id) {
+          item.movies_characters.type = data.value;
+        }
+        return item;
+      });
+      this.emitChange();
     }
   }
 }
@@ -188,6 +257,7 @@ export default {
 <style lang="scss" scoped>
 .assoc-table-container {
   margin-bottom: 2rem;
+  position: relative;
 
   .add {
     background: gray;
@@ -202,7 +272,7 @@ export default {
     justify-content: center;
   }
   .assoc-table {
-    width: 350px;
+    width: 97%;
     position: relative;
 
     /deep/ th {
@@ -227,6 +297,10 @@ export default {
       max-height: 200px;
       overflow: auto;
     }
+
+    .trash {
+      cursor: pointer;
+    }
   }
 
   .primary-checkbox {
@@ -238,7 +312,23 @@ export default {
   font-size: 0.7em;
   color: darkgray;
   position: absolute;
-  top: 65px;
-  right: 30px;
+  top: 0;
+  right: 0;
+}
+
+.spotted-details {
+  margin-left: 4rem;
+
+  .detail-row {
+    grid-template-columns: 120px auto 1px !important;
+  }
+
+  .artist-name {
+    font-weight: bold;
+    font-size: 0.9em;
+    text-decoration: underline;
+    margin-left: -2rem;
+    margin-bottom: 0.5rem;
+  }
 }
 </style>
