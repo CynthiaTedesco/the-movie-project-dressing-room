@@ -98,7 +98,7 @@ export default {
     },
   },
   methods: {
-    getPlainInitialValue() {
+    getPlainInitialValue () {
       return typeof this.initialValue === 'object' ?
         this.initialValue[this.field] :
         (this.initialValue || '');
@@ -127,6 +127,7 @@ export default {
       this.$emit('change', {
         field: this.field,
         value: this.value,
+        itemId: typeof this.initialValue === 'object' ? this.initialValue.id : null,
         reset: this.value === this.plainInitialValue
       })
     },

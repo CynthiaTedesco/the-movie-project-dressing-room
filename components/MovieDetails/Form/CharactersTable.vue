@@ -5,7 +5,7 @@
       hover
       :items="items"
       :fields="fields"
-      :tbody-tr-class="rowClass"
+      tbody-tr-class="assoc-table-row"
       class="assoc-table"
       @row-clicked="onRowClick"
     >
@@ -39,31 +39,33 @@
       <template v-slot:cell(id)="row">
         <font-awesome-icon class="trash" :icon="['fas', 'trash']" @click="deleteItem(row.item)" />
       </template>
+
+      <template v-slot:row-details="row">
+        <div class="spotted-details">
+          <input-detail
+            label="Character name"
+            field="character_name"
+            @change="characterNameChanged"
+            :initial-value="row.item"
+          />
+          <dropdown-detail
+            label="Type"
+            field="type"
+            url="character_types"
+            @change="characterTypeChanged"
+            :initial-value="row.item"
+          />
+          <dropdown-detail
+            label="Gender"
+            field="gender"
+            :list="genderList"
+            @change="genderChanged"
+            :initial-value="row.item"
+          />
+        </div>
+      </template>
     </b-table>
     <font-awesome-icon v-if="showReset" class="reset" :icon="['fa', 'undo']" @click="reset" />
-    <div class="spotted-details" v-if="spotted">
-      <span class="artist-name">{{spotted.name}}</span>
-      <input-detail
-        label="Character name"
-        field="character_name"
-        @change="characterNameChanged"
-        :initial-value="spotted"
-      />
-      <dropdown-detail
-        label="Type"
-        field="type"
-        url="character_types"
-        @change="characterTypeChanged"
-        :initial-value="spotted"
-      />
-      <dropdown-detail
-        label="Gender"
-        field="gender"
-        :list="genderList"
-        @change="genderChanged"
-        :initial-value="spotted"
-      />
-    </div>
   </div>
 </template>
 
@@ -85,7 +87,6 @@ export default {
       items: [],
       main: null,
       showReset: false,
-      spotted: null,
       dropdownItems: [],
       genderList: [
         { id: 0, name: 'Non-specified' },
@@ -119,21 +120,15 @@ export default {
     }
   },
   beforeMount () {
-    this.items = JSON.parse(JSON.stringify(this.initialItems)); //deep copy
+    this.items = JSON.parse(JSON.stringify(this.initialItems))//deep copy
+      .map(item => {
+        item._showDetails = this.initialMain === item.id;
+        item.character_name = item.movies_characters.character_name;
+        item.type = item.movies_characters.type;
+        return item;
+      });
+
     this.main = this.initialMain;
-    if (this.initialMain) {
-      this.spotted = this.items
-        .filter(a => a.id === this.initialMain)
-        .map(b => {
-          return {
-            id: b.id,
-            name: b.name,
-            gender: (this.genderList.find(g => g.name === b.gender) || {}).id,
-            date_of_birth: b.date_of_birth,
-            ...b.movies_characters
-          };
-        })[0];
-    }
   },
   mounted () {
     this.$axios(this.dropdownUrl).then(({ data }) => {
@@ -156,15 +151,6 @@ export default {
     }
   },
   methods: {
-    rowClass (item, type) {
-      let classes = ['assoc-table-row'];
-      if (type === 'row' && item && this.spotted) {
-        if (this.spotted.id === item.id) {
-          classes.push('spotted');
-        }
-      }
-      return classes.join(' ');
-    },
     emitChange (reset = null) {
       this.$emit('change', {
         field: this.field,
@@ -173,15 +159,8 @@ export default {
         reset: reset != null ? reset : this.asInitial()
       })
     },
-    onRowClick (record, index) {
-      console.log('change spotted!');
-      this.spotted = {
-        id: record.id,
-        name: record.name,
-        gender: (this.genderList.find(g => g.name === record.gender) || {}).id,
-        date_of_birth: record.date_of_birth,
-        ...record.movies_characters
-      }
+    onRowClick (record, index, la, b) {
+      record._showDetails = !record._showDetails;
     },
     selectNewArtist (assocIndex, dropdownItem) {
       this.items = this.items.map((it, index) => {
@@ -246,17 +225,21 @@ export default {
     },
     characterNameChanged (data) {
       this.items = this.items.map(item => {
-        if (item.id === this.spotted.id) {
+        if (item.id === data.itemId) {
           item.movies_characters.character_name = data.value;
+          item.character_name = data.value;
         }
         return item;
       });
       this.emitChange();
     },
     characterTypeChanged (data) {
+      debugger;
       this.items = this.items.map(item => {
-        if (item.id === this.spotted.id) {
-          item.movies_characters.type = data && data.value ? data.value.id : null;
+        if (item.id === data.itemId) {
+          const newType = data && data.value ? data.value.id : null;
+          item.movies_characters.type = newType;
+          item.type = newType;
         }
         return item;
       });
@@ -264,18 +247,29 @@ export default {
     },
     genderChanged (data) {
       this.items = this.items.map(item => {
-        if (item.id === this.spotted.id) {
+        if (item.id === data.itemId) {
           item.gender = data && data.value ? data.value.name : null;
         }
         return item;
       });
       this.emitChange();
-    }
+    },
+    birthDateChanged (data) {
+      this.items = this.items.map(item => {
+        if (item.id === data.itemId) {
+          item.date_of_birth = data ? data.value : null;
+        }
+        return item;
+      });
+      this.emitChange();
+    },
   }
 }
 </script>
 
 <style lang="scss" scoped>
+@import '~/assets/styles/common.scss';
+
 .assoc-table-container {
   margin-bottom: 2rem;
   position: relative;
@@ -304,10 +298,9 @@ export default {
   }
 }
 /deep/ .assoc-table-row {
-  &.spotted {
-    background: #e0e0e0;
+  &.b-table-has-details {
+    background: $selectedRow;
   }
-
   td {
     padding: 0.3em 0.75em;
     font-size: 0.8em;
@@ -342,7 +335,7 @@ export default {
 }
 
 .spotted-details {
-  margin-left: 4rem;
+  padding: 1rem 0 0 1rem;
 
   .detail-row {
     grid-template-columns: 120px auto 1px !important;

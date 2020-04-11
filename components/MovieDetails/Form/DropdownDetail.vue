@@ -19,7 +19,7 @@
         >{{item.name}}</b-dropdown-item>
       </b-dropdown>
       <template v-else>
-        <span v-if="selected && selected.id" @click="editing=true">{{selected.name}}</span>
+        <span v-if="selected && selected.name" @click="editing=true">{{selected.name}}</span>
         <span v-else class="missing-field" @click="editing=true">
           Missing &nbsp;
           <small>Click to edit</small>
@@ -103,15 +103,23 @@ export default {
       this.selectItem(this.options.find(o => o.id === this.initialValue[this.field]));
       this.showReset = false;
     },
-    selectItem (selected = {}) {
+    selectItem (selected) {
       this.selected = selected;
       this.editing = false;
-      this.showReset = selected.id != this.initialValue[this.field];
-      this.$emit('change', {
-        field: this.field,
-        value: !this.selected.id ? null : this.selected,
-        reset: this.selected.id === this.initialValue[this.field]
-      })
+      this.showReset =
+        !!((!this.initialValue[this.field] && selected) || // initial null has changed
+          (selected && this.initialValue[this.field] != selected.id));
+
+      const sameAsInitial = 
+        (!this.initialValue[this.field] && !selected) || // initial null has not changed
+        (selected && this.initialValue[this.field] === selected.id);
+
+        this.$emit('change', {
+          field: this.field,
+          value: !this.selected ? null : this.selected,
+          itemId: this.initialValue.id,
+          reset: sameAsInitial
+        })
     },
   }
 }
