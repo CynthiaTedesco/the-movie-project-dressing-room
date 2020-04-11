@@ -106,6 +106,21 @@ export default {
       required: true
     }
   },
+  beforeMount () {
+    this.items = JSON.parse(JSON.stringify(this.initialItems)); //deep copy
+    this.primary = this.initialPrimary;
+    if (this.initialPrimary) {
+      this.spotted = this.items
+        .filter(a => a.id === this.initialPrimary)
+        .map(b => {
+          return {
+            id: b.id,
+            name: b.name,
+            ...b.movies_characters
+          };
+        })[0];
+    }
+  },
   mounted () {
     this.$axios(this.dropdownUrl).then(({ data }) => {
       this.dropdownItems = data.sort((a, b) => {
@@ -118,23 +133,12 @@ export default {
         return 0;
       })
     });
-    this.items = JSON.parse(JSON.stringify(this.initialItems)); //deep copy
-    this.primary = this.initialPrimary;
-    
-    this.spotted = this.items
-      .filter(a => a.movies_characters.main)
-      .map(b => {
-        return {
-          id: b.id,
-          name: b.name,
-          ...b.movies_characters
-        };
-      })[0];
   },
   computed: {
     initialPrimary () {
-      return this.initialItems
-        .find(item => item.movies_characters.main).id;
+      let mainCharacter = this.initialItems
+        .find(item => item.movies_characters.main);
+      return mainCharacter ? mainCharacter.id : null;
     }
   },
   methods: {
