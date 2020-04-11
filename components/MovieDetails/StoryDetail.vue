@@ -43,12 +43,6 @@ export default {
   name: 'storyDetail',
   data () {
     return {
-      // genres_value: null,
-      // cast_quantity_value: null,
-      // characters_value: null,
-      // story_origin_value: null,
-      // set_in_place_value: null,
-      // set_in_place_value: null
     }
   },
   components: {

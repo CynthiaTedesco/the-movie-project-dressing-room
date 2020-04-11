@@ -78,6 +78,10 @@ export default {
       required: true
     }
   },
+  beforeMount () {
+    this.items = JSON.parse(JSON.stringify(this.initialItems)); //deep copy
+    this.primary = this.initialPrimary;
+  },
   mounted () {
     this.$axios(this.dropdownUrl).then(({ data }) => {
       this.dropdownItems = data.sort((a, b) => {
@@ -90,13 +94,11 @@ export default {
         return 0;
       })
     });
-    this.items = JSON.parse(JSON.stringify(this.initialItems)); //deep copy
-    this.primary = this.initialPrimary;
   },
   computed: {
     initialPrimary () {
       return this.initialItems
-        .find(item => item[this.associativeTableName].primary || item[this.associativeTableName].main).id;
+        .find(item => item[this.associativeTableName].primary).id;
     }
   },
   methods: {

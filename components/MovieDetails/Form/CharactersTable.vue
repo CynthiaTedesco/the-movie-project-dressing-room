@@ -28,12 +28,12 @@
       </template>
       <template v-slot:cell(main)="row">
         <input
-          class="primary-checkbox"
+          class="main-checkbox"
           type="radio"
-          name="primary"
-          id="primary"
-          :checked="row.item.id === primary"
-          @change="primaryChanged(row.item.id, row.item)"
+          name="main"
+          id="main"
+          :checked="row.item.id === main"
+          @change="mainChanged(row.item.id, row.item)"
         />
       </template>
       <template v-slot:cell(id)="row">
@@ -76,7 +76,7 @@ export default {
   data () {
     return {
       items: [],
-      primary: null,
+      main: null,
       showReset: false,
       spotted: null,
       dropdownItems: []
@@ -108,10 +108,10 @@ export default {
   },
   beforeMount () {
     this.items = JSON.parse(JSON.stringify(this.initialItems)); //deep copy
-    this.primary = this.initialPrimary;
-    if (this.initialPrimary) {
+    this.main = this.initialMain;
+    if (this.initialMain) {
       this.spotted = this.items
-        .filter(a => a.id === this.initialPrimary)
+        .filter(a => a.id === this.initialMain)
         .map(b => {
           return {
             id: b.id,
@@ -135,7 +135,7 @@ export default {
     });
   },
   computed: {
-    initialPrimary () {
+    initialMain () {
       let mainCharacter = this.initialItems
         .find(item => item.movies_characters.main);
       return mainCharacter ? mainCharacter.id : null;
@@ -182,7 +182,7 @@ export default {
     },
     reset () {
       this.items = JSON.parse(JSON.stringify(this.initialItems)); //deep copy
-      this.primary = this.initialPrimary;
+      this.main = this.initialMain;
       this.emitChange(true);
       // this.$emit('change', {
       //   field: this.field,
@@ -199,13 +199,13 @@ export default {
       }
       this.emitChange();
     },
-    primaryChanged (newMain, item) {
+    mainChanged (newMain, item) {
       this.items = this.items.map(item => {
         item.movies_characters.main = newMain === item.id;
         return item;
       });
-      this.primary = newMain;
-      this.showReset = newMain != this.initialPrimary;
+      this.main = newMain;
+      this.showReset = newMain != this.initialMain;
       this.emitChange();
     },
     asInitial () {
@@ -213,18 +213,6 @@ export default {
       if (this.items.length != this.initialItems.length) {
         equal = false;
       } else {
-        // const newPrimary = this.items.find(item => item.movies_characters.main).id;
-        // if (newPrimary != this.initialPrimary) {
-        //   equal = false;
-        // }
-
-        // //check if the elements are all the same
-        // const newIds = this.items.map(it1 => it1.id).sort((a, b) => a - b).join('');
-        // const oldIds = this.initialItems.map(it1 => it1.id).sort((a, b) => a - b).join('');
-        // if (newIds != oldIds) {
-        //   equal = false;
-        // }
-
         //compare item by item
         this.items.map((newItem, index) => {
           if (JSON.stringify(newItem) != JSON.stringify(this.initialItems[index])) {
@@ -307,7 +295,7 @@ export default {
     }
   }
 
-  .primary-checkbox {
+  .main-checkbox {
     margin: auto;
   }
 }
