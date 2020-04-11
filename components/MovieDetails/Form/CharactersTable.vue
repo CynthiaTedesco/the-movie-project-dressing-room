@@ -26,6 +26,7 @@
         </b-dropdown>
         <span v-else>{{row.item.name}}</span>
       </template>
+      <template v-slot:cell(date_of_birth)="row">{{calculateAge(row.item.date_of_birth)}}</template>
       <template v-slot:cell(main)="row">
         <input
           class="main-checkbox"
@@ -62,6 +63,13 @@
             @change="genderChanged"
             :initial-value="row.item"
           />
+          <date-detail
+            label="Birthdate"
+            field="date_of_birth"
+            :customValidation="validateAge"
+            @change="birthDateChanged"
+            :initial-value="row.item"
+          />
         </div>
       </template>
     </b-table>
@@ -70,12 +78,14 @@
 </template>
 
 <script>
+import { isValid } from 'date-fns'
 import Vue from 'vue';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faUndo, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import InputDetail from '@/components/MovieDetails/Form/InputDetail';
 import DropdownDetail from '@/components/MovieDetails/Form/DropdownDetail';
+import DateDetail from '@/components/MovieDetails/Form/DateDetail';
 
 library.add(faTrash)
 library.add(faUndo)
@@ -95,7 +105,7 @@ export default {
       ]
     }
   },
-  components: { InputDetail, DropdownDetail },
+  components: { InputDetail, DropdownDetail, DateDetail },
   props: {
     initialItems: {
       type: Array,
@@ -151,6 +161,26 @@ export default {
     }
   },
   methods: {
+    validateAge (date) {
+      const age = this.calculateAge(date);
+      if (!!date && !age) { return false }
+      if (age < 0 || age > 120) {
+        return false;
+      }
+
+      return true;
+    },
+    calculateAge (date) {
+      if (!date) { return '' }
+      if (!isValid(new Date(date))) {
+        return '';
+      }
+
+      const diff_ms = Date.now() - new Date(date).getTime();
+      const age_dt = new Date(diff_ms);
+
+      return Math.abs(age_dt.getUTCFullYear() - 1970);
+    },
     emitChange (reset = null) {
       this.$emit('change', {
         field: this.field,
