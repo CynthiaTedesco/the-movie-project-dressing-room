@@ -5,7 +5,7 @@
       hover
       :items="items"
       :fields="fields"
-      tbody-tr-class="assoc-table-row"
+      :tbody-tr-class="rowClass"
       class="assoc-table"
       @row-clicked="onRowClick"
     >
@@ -49,13 +49,20 @@
         @change="characterNameChanged"
         :initial-value="spotted"
       />
-      <!-- <dropdown-detail
+      <dropdown-detail
         label="Type"
         field="type"
+        url="character_types"
         @change="characterTypeChanged"
-        :initial-value="spotted.type"
-        :rows="1"
-      />-->
+        :initial-value="spotted"
+      />
+      <dropdown-detail
+        label="Gender"
+        field="gender"
+        :list="genderList"
+        @change="genderChanged"
+        :initial-value="spotted"
+      />
     </div>
   </div>
 </template>
@@ -79,7 +86,12 @@ export default {
       main: null,
       showReset: false,
       spotted: null,
-      dropdownItems: []
+      dropdownItems: [],
+      genderList: [
+        { id: 0, name: 'Non-specified' },
+        { id: 1, name: 'Female' },
+        { id: 2, name: 'Male' }
+      ]
     }
   },
   components: { InputDetail, DropdownDetail },
@@ -116,6 +128,8 @@ export default {
           return {
             id: b.id,
             name: b.name,
+            gender: (this.genderList.find(g => g.name === b.gender) || {}).id,
+            date_of_birth: b.date_of_birth,
             ...b.movies_characters
           };
         })[0];
@@ -142,6 +156,15 @@ export default {
     }
   },
   methods: {
+    rowClass (item, type) {
+      let classes = ['assoc-table-row'];
+      if (type === 'row' && item && this.spotted) {
+        if (this.spotted.id === item.id) {
+          classes.push('spotted');
+        }
+      }
+      return classes.join(' ');
+    },
     emitChange (reset = null) {
       this.$emit('change', {
         field: this.field,
@@ -155,6 +178,8 @@ export default {
       this.spotted = {
         id: record.id,
         name: record.name,
+        gender: (this.genderList.find(g => g.name === record.gender) || {}).id,
+        date_of_birth: record.date_of_birth,
         ...record.movies_characters
       }
     },
@@ -184,10 +209,6 @@ export default {
       this.items = JSON.parse(JSON.stringify(this.initialItems)); //deep copy
       this.main = this.initialMain;
       this.emitChange(true);
-      // this.$emit('change', {
-      //   field: this.field,
-      //   reset: true
-      // })
       this.showReset = false;
     },
     deleteItem (item) {
@@ -232,11 +253,19 @@ export default {
       });
       this.emitChange();
     },
-    characterTypeChanged () {
-      console.log('character type changed!');
+    characterTypeChanged (data) {
       this.items = this.items.map(item => {
         if (item.id === this.spotted.id) {
-          item.movies_characters.type = data.value;
+          item.movies_characters.type = data && data.value ? data.value.id : null;
+        }
+        return item;
+      });
+      this.emitChange();
+    },
+    genderChanged (data) {
+      this.items = this.items.map(item => {
+        if (item.id === this.spotted.id) {
+          item.gender = data && data.value ? data.value.name : null;
         }
         return item;
       });
@@ -275,6 +304,10 @@ export default {
   }
 }
 /deep/ .assoc-table-row {
+  &.spotted {
+    background: #e0e0e0;
+  }
+
   td {
     padding: 0.3em 0.75em;
     font-size: 0.8em;
@@ -313,6 +346,7 @@ export default {
 
   .detail-row {
     grid-template-columns: 120px auto 1px !important;
+    margin-bottom: 0 !important;
   }
 
   .artist-name {

@@ -1,16 +1,16 @@
 <template>
   <div class="detail-row">
     <label :for="label">{{label}}:</label>
-    <div :id="label" @click="editing=true">
+    <div :id="label">
       <b-dropdown
         v-if="editing"
-        :text="selected ? selected.name : 'Choose...'"
+        :text="selected && selected.id ? selected.name : 'Choose...'"
         dropup
         variant="bg-transparent"
         class="dropdown"
       >
         <b-dropdown-item
-          v-for="item of items"
+          v-for="item of options"
           :key="item.id"
           href="#"
           @click="selectItem(item)"
@@ -19,8 +19,8 @@
         >{{item.name}}</b-dropdown-item>
       </b-dropdown>
       <template v-else>
-        <span v-if="selected">{{selected.name}}</span>
-        <span v-else class="missing-field">
+        <span v-if="selected && selected.id" @click="editing=true">{{selected.name}}</span>
+        <span v-else class="missing-field" @click="editing=true">
           Missing &nbsp;
           <small>Click to edit</small>
         </span>
@@ -49,7 +49,13 @@ export default {
     return {
       editing: false,
       showReset: false,
-      selected: null
+      selected: null,
+      options: []
+    }
+  },
+  watch: {
+    initialValue (a, b) {
+      this.setSelectedById();
     }
   },
   props: {
@@ -57,27 +63,54 @@ export default {
       type: String,
       required: true
     },
-    initialValue: String,
+    url: {
+      type: String,
+      required: false
+    },
+    list: {
+      type: Array,
+      default: null
+    },
+    initialValue: {
+      type: Object,
+      default: () => { }
+    },
     field: {
       type: String,
       required: true
     }
   },
   mounted () {
-    this.selected = this.initialValue || '';
+    if (this.list) {
+      this.options = this.list;
+      if (this.initialValue) {
+        this.setSelectedById();
+      }
+    } else if (this.url) {
+      this.$axios.get(this.url).then(results => {
+        this.options = results.data;
+        if (this.initialValue) {
+          this.setSelectedById();
+        }
+      });
+    }
   },
   methods: {
+    setSelectedById () {
+      this.selected = this.options.find(o => o.id === this.initialValue[this.field])
+    },
     reset () {
-      this.selected = this.initialValue;
-      this.selectItem();
+      this.selectItem(this.options.find(o => o.id === this.initialValue[this.field]));
       this.showReset = false;
     },
-    selectItem () {
-      this.showReset = this.selected != this.initialValue;
+    selectItem (selected = {}) {
+      this.selected = selected;
+      this.editing = false;
+      this.showReset = selected.id != this.initialValue[this.field];
       this.$emit('change', {
         field: this.field,
-        value: this.selected,
-        reset: this.selected === this.initialValue
+        value: !this.selected.id ? null : this.selected,
+        reset: this.selected.id === this.initialValue[this.field]
       })
     },
   }
