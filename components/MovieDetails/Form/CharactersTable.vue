@@ -78,7 +78,7 @@
 </template>
 
 <script>
-import { isValid } from 'date-fns'
+import { isValid, format } from 'date-fns';
 import Vue from 'vue';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faUndo, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -264,7 +264,6 @@ export default {
       this.emitChange();
     },
     characterTypeChanged (data) {
-      debugger;
       this.items = this.items.map(item => {
         if (item.id === data.itemId) {
           const newType = data && data.value ? data.value.id : null;
@@ -287,7 +286,7 @@ export default {
     birthDateChanged (data) {
       this.items = this.items.map(item => {
         if (item.id === data.itemId) {
-          item.date_of_birth = data ? data.value : null;
+          item.date_of_birth = data ? format(new Date(data.value), 'MM/dd/yyyy') : null;
         }
         return item;
       });

@@ -97,7 +97,10 @@ export default {
   },
   methods: {
     setSelectedById () {
-      this.selected = this.options.find(o => o.id === this.initialValue[this.field])
+      this.selected = this.options.find(o => {
+        return o.id === this.initialValue[this.field] ||
+          o.name === this.initialValue[this.field];
+      });
     },
     reset () {
       this.selectItem(this.options.find(o => o.id === this.initialValue[this.field]));
@@ -110,16 +113,16 @@ export default {
         !!((!this.initialValue[this.field] && selected) || // initial null has changed
           (selected && this.initialValue[this.field] != selected.id));
 
-      const sameAsInitial = 
+      const sameAsInitial =
         (!this.initialValue[this.field] && !selected) || // initial null has not changed
         (selected && this.initialValue[this.field] === selected.id);
 
-        this.$emit('change', {
-          field: this.field,
-          value: !this.selected ? null : this.selected,
-          itemId: this.initialValue.id,
-          reset: sameAsInitial
-        })
+      this.$emit('change', {
+        field: this.field,
+        value: !this.selected ? null : this.selected,
+        itemId: this.initialValue.id,
+        reset: sameAsInitial
+      })
     },
   }
 }
