@@ -1,5 +1,20 @@
 <template>
   <div class="home">
+    <div class="bulk">
+      <div class="bulk-title">Bulk functions</div>
+      <div class="bulk-functions">
+        <b-button @click="updatePeopleDetails">Update people details</b-button>
+        <small>(gender and birthdate)</small>
+      </div>
+      <b-modal ref="bulkModal" hide-footer no-close-on-backdrop no-close-on-esc hide-header>
+        <div class="d-block text-center">
+          <div class="bulk-modal-content">
+            <span>{{`${bulkAction} being processed...`}}</span>
+            <font-awesome-icon icon="spinner" spin />
+          </div>
+        </div>
+      </b-modal>
+    </div>
     <b-col lg="12" class="filters">
       <b-form-group
         label-cols-sm="3"
@@ -51,9 +66,10 @@ import { beautifyCashValue, calculateMissingData } from '@/assets/js/helpers.js'
 import TheMovieDetail from '@/components/TheMovieDetail';
 import Vue from 'vue';
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faEdit, faEye, faExclamationCircle, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faEdit, faEye, faExclamationCircle, faTrash, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
+library.add(faSpinner)
 library.add(faEdit)
 library.add(faEye)
 library.add(faTrash)
@@ -77,6 +93,7 @@ export default {
       currentMovie: null,
       movies: [],
       filters: [],
+      bulkAction: ''
     };
   },
   mounted () {
@@ -127,7 +144,7 @@ export default {
     },
     async updatedMovie (updated, sort) {
       const fullMovie = await this.$axios.get(`movies/${updated.id}`);
-      
+
       let updatedMovies = this.movies.map(m => {
         if (m.more.id === updated.id) {
           m.revenue = beautifyCashValue(updated.revenue);
@@ -182,6 +199,19 @@ export default {
       } else {
         this.filters.splice(this.filters.indexOf('missingData'), 1);
       }
+    },
+    updatePeopleDetails () {
+      this.bulkAction = 'People details are';
+      this.$refs['bulkModal'].show();
+      this.$axios.post('people/updateDetails').then(result => {
+        this.bulkAction = '';
+        this.$refs['bulkModal'].hide();
+        this.$toast.success(result.data);
+      }).catch(err => {
+        this.bulkAction = '';
+        this.$refs['bulkModal'].hide();
+        this.$toast.error(err);
+      });
     }
   }
 };
@@ -214,6 +244,47 @@ export default {
 
   .validity-checkbox {
     cursor: pointer;
+  }
+
+  .bulk {
+    background: #00324a;
+    color: white;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+
+    .bulk-title {
+      border-radius: 20px 0 0;
+      padding: 1rem 1rem 0.5rem;
+      text-transform: uppercase;
+      font-size: 0.8em;
+      font-weight: bold;
+    }
+
+    .bulk-functions {
+      padding: 2rem;
+      background: #fff;
+      border: 1px solid black;
+      border-radius: 0 0 20px 20px;
+
+      small {
+        padding-left: 0.5rem;
+        font-style: italic;
+        color: black;
+      }
+    }
+  }
+}
+/deep/ .bulk-modal-content {
+  padding: 3rem 0;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+
+  svg {
+    font-size: 3rem;
+    margin-top: 2rem;
+    cursor: default;
   }
 }
 </style>

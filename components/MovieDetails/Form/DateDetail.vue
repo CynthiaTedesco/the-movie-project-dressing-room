@@ -5,7 +5,7 @@
       <template v-if="editing">
         <input
           ref="input"
-          placeholder="mm/dd/yyyy"
+          placeholder="yyyy-mm-dd"
           type="text"
           v-model="value"
           @change="onChange"
