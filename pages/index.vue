@@ -119,7 +119,7 @@ export default {
               case 'valid':
                 return total && !movie[current];
               default:
-                return total && movie[current];
+                return total && movie[current] && movie[current].length;
             }
           }, true);
         });

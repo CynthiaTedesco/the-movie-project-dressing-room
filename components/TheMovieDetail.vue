@@ -205,9 +205,19 @@ export default {
 
 .header {
   position: fixed;
-  width: 58vw;
+  width: 88vw;
+  max-width: 684px;
   background: white;
   z-index: 1;
+
+  @include media-breakpoint-up(md) {
+    width: 58vw;
+  }
+
+  @include media-breakpoint-up(lg) {
+    width: 48%;
+    max-width: none;
+  }
 
   .navbar {
     border-bottom: 1px solid #d0d0d0;
@@ -257,6 +267,7 @@ export default {
 
   @include media-breakpoint-up(lg) {
     width: 49vw;
+    max-width: none;
   }
 
   &.container {
@@ -296,7 +307,13 @@ export default {
   background-color: $white;
 
   .menu-content {
-    padding: 7rem 3rem;
+    padding: 1rem 2rem;
+    position: absolute;
+    top: 150px;
+
+    @include media-breakpoint-up(xsm) {
+      top: 100px;
+    }
 
     /deep/ .detail-row {
       display: grid;
