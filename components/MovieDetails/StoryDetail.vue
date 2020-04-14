@@ -69,10 +69,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-/deep/ label {
-  font-weight: bold;
-  font-size: 0.7em;
-  margin-top: 4px;
-  text-transform: uppercase;
-}
 </style>

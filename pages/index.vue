@@ -247,29 +247,40 @@ export default {
   }
 
   .bulk {
-    background: #00324a;
+    background: #567abb;
     color: white;
-    border-radius: 20px;
+    border-radius: 5px;
     margin-bottom: 2rem;
 
     .bulk-title {
-      border-radius: 20px 0 0;
-      padding: 1rem 1rem 0.5rem;
       text-transform: uppercase;
       font-size: 0.8em;
       font-weight: bold;
+      padding: 0.5rem;
     }
 
     .bulk-functions {
       padding: 2rem;
       background: #fff;
-      border: 1px solid black;
-      border-radius: 0 0 20px 20px;
+      border: 1px solid #567abb;
 
       small {
         padding-left: 0.5rem;
         font-style: italic;
         color: black;
+      }
+
+      button {
+        background: transparent;
+        border-radius: 5px;
+        border-color: #567abb;
+        color: #567abb;
+        padding: 10px 20px;
+        box-shadow: none;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 1.05px;
       }
     }
   }

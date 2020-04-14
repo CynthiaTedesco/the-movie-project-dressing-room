@@ -90,7 +90,7 @@ export default {
     invalidBehaviour () {
       this.showInvalid = true;
       const innerFn = () => {
-        this.value = this.initialValue[this.field]
+        this.value = this.getPlainInitialValue()
         this.showInvalid = false;
         this.editing = false;
       }

@@ -1,6 +1,6 @@
 <template>
   <div class="detail-row">
-    <label :for="label">{{label}}:</label>
+    <label v-if="!hideLabel" :for="label">{{label}}:</label>
     <div :id="label" @click="startEditing">
       <template v-if="editing">
         <textarea
@@ -24,7 +24,17 @@
         />
       </template>
       <template v-else>
-        <span v-if="value" :class="textClass">{{text}}</span>
+        <template v-if="value">
+          <span :class="textClass">
+            {{text}}
+            <font-awesome-icon
+              v-if="link"
+              class="link-icon"
+              :icon="['fas', 'external-link-alt']"
+              @click="goTo"
+            />
+          </span>
+        </template>
         <span v-else class="missing-field">
           Missing &nbsp;
           <small>Click to edit</small>
@@ -43,11 +53,11 @@
 <script>
 import Vue from 'vue';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faUndo } from '@fortawesome/free-solid-svg-icons';
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { beautifyCashValue } from '@/assets/js/helpers.js';
 
-library.add(faUndo)
+library.add(faExternalLinkAlt)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 export default {
@@ -66,6 +76,14 @@ export default {
     }
   },
   props: {
+    hideLabel: {
+      type: Boolean,
+      default: false
+    },
+    link: {
+      type: Boolean,
+      default: false
+    },
     label: {
       type: String,
       required: true
@@ -94,10 +112,22 @@ export default {
       return this.money ? this.moneyValue() : this.value
     },
     textClass () {
-      return this.money ? 'money' : '';
+      let classes = [];
+      if (this.money) {
+        classes.push('money');
+      }
+      if (this.link) {
+        classes.push('url');
+      }
+      return classes.join(' ');
     },
   },
   methods: {
+    goTo () {
+      if (this.text) {
+        window.open(this.text, "_blank");
+      }
+    },
     getPlainInitialValue () {
       return typeof this.initialValue === 'object' ?
         this.initialValue[this.field] :
@@ -139,14 +169,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.url {
+  font-size: 0.8em;
+  display: block;
+}
 .money {
   font-size: 1.4em;
   margin-bottom: 5px;
   margin-top: -5px;
 }
-.reset {
-  cursor: pointer;
-  font-size: 0.7em;
-  color: darkgray;
+svg.link-icon {
+  color: blue;
+  font-size: 0.9em;
 }
 </style>

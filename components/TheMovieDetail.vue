@@ -40,7 +40,12 @@
                 >
                   <b-button block href="#" v-b-toggle="item.title" variant="info">{{item.title}}</b-button>
                 </b-card-header>
-                <b-collapse :id="item.title" visible accordion="my-accordion" role="tabpanel">
+                <b-collapse
+                  :id="item.title"
+                  :visible="cardHeaderClasses(item.title).indexOf('missing')>-1"
+                  accordion="my-accordion"
+                  role="tabpanel"
+                >
                   <b-card-body>
                     <component :is="item.component" v-bind="movie.more" @change="onChange" />
                   </b-card-body>
@@ -123,12 +128,15 @@ export default {
       }
     },
     onChange ({ field, value, reset, subfield, list }) {
-      let saveValueAsInitial = false;
+      let sameValueAsInitial = false;
       if (value) {
-        saveValueAsInitial = this.movie.more[field] === value;
+        const initialValue = !subfield ?
+          this.movie.more[field] :
+          (this.movie.more[field] ? this.movie.more[field][subfield] : null);
+        sameValueAsInitial = JSON.stringify(initialValue) === JSON.stringify(value);
       } else if (list) {
         if (list.length !== this.movie.more[field].length) {
-          saveValueAsInitial = false; //we added or deleted something
+          sameValueAsInitial = false; //we added or deleted something
         } else {
           const equality = this.movie.more[field].map((item, index) => {
             const plainEquality =
@@ -143,11 +151,11 @@ export default {
 
             return plainEquality && relationEquality
           });
-          saveValueAsInitial = equality.reduce((curr, next) => curr && next, true);
+          sameValueAsInitial = equality.reduce((curr, next) => curr && next, true);
         }
       }
 
-      if (reset || saveValueAsInitial) {
+      if (reset || sameValueAsInitial) {
         if (this.changes[field]) {
           delete this.changes[field];
         }
@@ -157,7 +165,12 @@ export default {
         }
         let toPush;
         if (value) {
-          toPush = value;
+          if(subfield){
+            toPush = {};
+            toPush[subfield] = value;
+          } else {
+            toPush = value;
+          }
         } else if (list) {
           toPush = { list };
         }
@@ -223,6 +236,8 @@ export default {
     border-bottom: 1px solid #d0d0d0;
     h2 {
       margin: 1rem;
+      white-space: nowrap;
+      overflow: hidden;
     }
   }
 }
@@ -320,11 +335,20 @@ export default {
       grid-template-columns: 80px auto 1px;
       margin-bottom: 0.5rem;
 
-      label {
-        font-weight: bold;
-        font-size: 0.7em;
-        margin-top: 4px;
-        text-transform: uppercase;
+      &.big-label {
+        grid-template-columns: 100px auto 0px;
+      }
+
+      &.column {
+        grid-template-columns: 100%;
+        grid-template-rows: 1fr auto;
+        position: relative;
+
+        svg.reset {
+          position: absolute;
+          right: 0;
+          // top: -10px;
+        }
       }
 
       textarea {

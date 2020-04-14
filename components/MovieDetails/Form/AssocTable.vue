@@ -23,8 +23,8 @@
         <input
           class="primary-checkbox"
           type="radio"
-          name="primary"
-          id="primary"
+          :name="`${field}-primary`"
+          :id="`${field}-primary`"
           :checked="row.item.id === primary"
           @change="primaryChanged(row.item.id, row.item)"
         />
@@ -80,7 +80,9 @@ export default {
   },
   beforeMount () {
     this.items = JSON.parse(JSON.stringify(this.initialItems)); //deep copy
-    this.primary = this.initialPrimary;
+    if (this.items.length) {
+      this.primary = this.initialPrimary;
+    }
   },
   mounted () {
     this.$axios(this.dropdownUrl).then(({ data }) => {
@@ -97,6 +99,8 @@ export default {
   },
   computed: {
     initialPrimary () {
+      if (!this.initialItems.length) return null;
+
       return this.initialItems
         .find(item => item[this.associativeTableName].primary).id;
     }
@@ -190,6 +194,7 @@ export default {
 <style lang="scss" scoped>
 .assoc-table-container {
   margin-bottom: 2rem;
+  position: relative;
 
   .add {
     background: gray;
@@ -240,7 +245,7 @@ export default {
   font-size: 0.7em;
   color: darkgray;
   position: absolute;
-  top: 65px;
-  right: 30px;
+  top: 0;
+  right: -10px;
 }
 </style>

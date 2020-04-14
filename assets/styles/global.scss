@@ -20,6 +20,12 @@ svg {
   color: darkgray;
 }
 
+label {
+  font-weight: bold;
+  font-size: 0.7em;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
 .detail-row {
   input {
     font-size: 0.8rem;
