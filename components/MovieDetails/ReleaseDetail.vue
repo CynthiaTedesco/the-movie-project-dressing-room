@@ -2,10 +2,10 @@
   <div>
     <div class="poster">
       <div class="poster-details">
-        <img v-if="poster && poster.url" :src="posterObj.url" alt="poster" />
+        <img :src="posterObj.url" alt="poster" />
         <div>
           <input-detail
-            hide-label
+            :hide-label="!!poster"
             class="column"
             label="URL"
             field="url"
@@ -125,6 +125,9 @@ export default {
     grid-column-gap: 1rem;
     margin-top: 1rem;
 
+    textarea{
+      width: 100%;
+    }
     /deep/ #URL {
       overflow: hidden;
     }

@@ -97,7 +97,7 @@ export default {
       setTimeout(innerFn, 1000);
     },
     getPlainInitialValue () {
-      return typeof this.initialValue === 'object' ?
+      return this.initialValue && typeof this.initialValue === 'object' ?
         this.initialValue[this.field] :
         (this.initialValue || '');
     },
@@ -120,10 +120,13 @@ export default {
     onChange () {
       if (this.checkValidity()) {
         this.showReset = this.value != this.plainInitialValue;
+        const itemId = typeof this.initialValue === 'object' && this.initialValue ?
+          this.initialValue.id :
+          null;
         this.$emit('change', {
           field: this.field,
           value: this.value,
-          itemId: typeof this.initialValue === 'object' ? this.initialValue.id : null,
+          itemId,
           reset: this.value === this.plainInitialValue
         })
       }
