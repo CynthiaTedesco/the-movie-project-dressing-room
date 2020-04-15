@@ -2,7 +2,7 @@
   <div>
     <div class="poster">
       <div class="poster-details">
-        <img v-if="poster && poster.url" :src="posterUrl" alt="poster" />
+        <img v-if="poster && poster.url" :src="posterObj.url" alt="poster" />
         <div>
           <input-detail
             hide-label
@@ -66,16 +66,16 @@ import AssocTable from '@/components/MovieDetails/Form/AssocTable';
 
 export default {
   name: 'releaseDetail',
-  data () {
-    return {
-      posterObj: null,
-    }
-  },
   components: {
     InputDetail,
     DateDetail,
     DropdownDetail,
     AssocTable
+  },
+  data () {
+    return {
+      posterObj: null
+    }
   },
   props: {
     id: Number,
@@ -85,22 +85,28 @@ export default {
     poster: Object
   },
   beforeMount () {
-    this.posterUrl = this.poster ? this.poster.url : '';
     this.posterObj = Object.assign({}, this.poster);
+  },
+  computed: {
+    posterURL () {
+      console.log('posterURL being calculated!');
+      return (this.posterObj || {}).url;
+    }
   },
   methods: {
     onChange (params) {
-      // let change;
       if (params.field === 'url' || params.field === 'poster_type_id') {
-        // change = Object.assign({}, this.posterObj);
+
         if (params.field === 'url') {
           this.posterObj.new = true;
           this.posterObj.url = params.value;
         }
+
         if (params.field === 'poster_type_id') {
           this.posterObj.poster_type_id = params.value.id
           this.posterObj.poster_type = params.value;
         }
+
         params.field = 'poster';
         params.value = this.posterObj;
       }
