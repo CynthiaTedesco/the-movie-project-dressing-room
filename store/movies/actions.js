@@ -45,7 +45,7 @@ export default {
     return updatedMovie;
   },
   updateMovie({ dispatch }, {id, updates}){
-    return this.$axios.post(`/movies/${id}`, updates).then(({data}) => {
+    return this.$axios.post(`/movies/${id}/update`, updates).then(({data}) => {
       return dispatch('updateListAfterUpdate', data.updated)
     })
   }

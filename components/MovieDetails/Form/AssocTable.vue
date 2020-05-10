@@ -101,8 +101,7 @@ export default {
     initialPrimary () {
       if (!this.initialItems.length) return null;
 
-      return this.initialItems
-        .find(item => item[this.associativeTableName].primary).id;
+      return (this.initialItems.find(item => item[this.associativeTableName].primary)|| {} ).id;
     }
   },
   methods: {

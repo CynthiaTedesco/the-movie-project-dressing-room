@@ -28,7 +28,13 @@
       :initial-value="plot_line"
       :rows="2"
     />
-    <div></div>
+    <autocomplete-detail 
+      label="Movie Origin" 
+      field="story_origin" 
+      :initial-value="story_origin"
+      @change="onChange"
+      dropdown-url="origins"
+    />
     <div></div>
     <div></div>
   </div>
@@ -38,6 +44,7 @@
 import InputDetail from '@/components/MovieDetails/Form/InputDetail';
 import AssocTable from '@/components/MovieDetails/Form/AssocTable';
 import CharactersTable from '@/components/MovieDetails/Form/CharactersTable';
+import AutocompleteDetail from '@/components/MovieDetails/Form/AutocompleteDetail';
 
 export default {
   name: 'storyDetail',
@@ -48,7 +55,8 @@ export default {
   components: {
     InputDetail,
     AssocTable,
-    CharactersTable
+    CharactersTable,
+    AutocompleteDetail
   },
   props: {
     id: Number,

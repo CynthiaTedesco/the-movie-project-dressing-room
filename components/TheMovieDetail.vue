@@ -173,6 +173,8 @@ export default {
           }
         } else if (list) {
           toPush = { list };
+        } else {
+          toPush = null;
         }
         this.changes[field].push(toPush);
       }
@@ -193,9 +195,10 @@ export default {
         if (field === 'revenue') {
           revenueHasChanged = true;
         }
+
         //we only keep the last change 
         this.changes[field] = this.changes[field].pop();
-        if (this.changes[field].list) {
+        if (this.changes[field] && this.changes[field].list) {
           this.changes[field] = this.changes[field].list;
         }
       });
