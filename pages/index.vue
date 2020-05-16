@@ -16,12 +16,28 @@
       </b-modal>
     </div>
     <b-col lg="12" class="filters">
+      <b-button @click="showColumnFilters = !showColumnFilters">Filter columns</b-button>
+      <b-button @click="showRowFilters = !showRowFilters">Filter rows</b-button>
+      <b-form-group
+        label-cols-sm="3"
+        label-align-sm="right"
+        label-size="sm"
+        class="mb-0"
+        v-if="showColumnFilters"
+      >
+        <div class="columns-checkbox mt-1">
+          <b-form-checkbox @change="updateColumns('universe')" value="valid">Universe</b-form-checkbox>
+          <b-form-checkbox @change="updateColumns('cinematography')" value="valid">Cinematography</b-form-checkbox>
+          <b-form-checkbox @change="updateColumns('serie')" value="valid">Serie</b-form-checkbox>
+        </div>
+      </b-form-group>
       <b-form-group
         label-cols-sm="3"
         label-align-sm="right"
         label-size="sm"
         description="Leave all unchecked to filter on all data"
         class="mb-0"
+        v-if="showRowFilters"
       >
         <b-form-checkbox-group class="mt-1">
           <b-form-checkbox @change="updateValidFilter" value="valid">Only invalid</b-form-checkbox>
@@ -29,7 +45,12 @@
         </b-form-checkbox-group>
       </b-form-group>
     </b-col>
-    <b-table hover :items="filteredMovies " :fields="fields" :tbody-tr-class="rowClass">
+    <b-table
+      hover
+      :items="filteredMovies "
+      :fields="fields.filter(f=>f.show)"
+      :tbody-tr-class="rowClass"
+    >
       <template v-slot:cell(position)="row">
         <span v-if="row.item.position" class="position">#{{row.item.position}}</span>
         <font-awesome-icon v-else :icon="['fas', 'exclamation-circle']" title="Invalid movie" />
@@ -49,12 +70,14 @@
       </template>
       <template v-slot:cell(releaseDate)="row">{{(new Date(row.item.releaseDate)).getFullYear()}}</template>
       <template v-slot:cell(more)="row">
-        <font-awesome-icon
-          class="more"
-          :icon="['fas', row.item.missingData.length ? 'edit' : 'eye']"
-          @click="displayDetailSection(row.item)"
-        />
-        <font-awesome-icon class="trash" :icon="['fas', 'trash']" @click="deleteMovie(row.item)" />
+        <div class="more-column">
+          <font-awesome-icon
+            class="more"
+            :icon="['fas', row.item.missingData.length ? 'edit' : 'eye']"
+            @click="displayDetailSection(row.item)"
+          />
+          <font-awesome-icon class="trash" :icon="['fas', 'trash']" @click="deleteMovie(row.item)" />
+        </div>
       </template>
     </b-table>
     <the-movie-detail :show="displayDetail" :movie="currentMovie" @close="displayDetail = false" />
@@ -66,7 +89,7 @@ import { beautifyCashValue, calculateMissingData } from '@/assets/js/helpers.js'
 import TheMovieDetail from '@/components/TheMovieDetail';
 import Vue from 'vue';
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faEdit, faEye, faExclamationCircle, faTrash, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faEdit, faEye, faExclamationCircle, faTrash, faSpinner, faFunnelDollar } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 library.add(faSpinner)
@@ -81,13 +104,18 @@ export default {
   components: { TheMovieDetail },
   data () {
     return {
+      showRowFilters: false,
+      showColumnFilters: false,
       fields: [
-        { key: 'position', sortable: true, label: '#' },
-        { key: 'title', sortable: true },
-        { key: 'releaseDate', sortable: true, label: 'Year' },
-        { key: 'revenue', sortable: true },
-        { key: 'valid' },
-        { key: 'more' },
+        { key: 'position', sortable: true, label: '#', show: true },
+        { key: 'title', sortable: true, show: true },
+        { key: 'releaseDate', sortable: true, label: 'Year', show: true },
+        { key: 'revenue', sortable: true, show: true },
+        { key: 'universe', sortable: true, show: false },
+        { key: 'cinematography', sortable: true, show: false },
+        { key: 'serie', sortable: true, show: false },
+        { key: 'valid', show: true },
+        { key: 'more', show: true },
       ],
       displayDetail: false,
       currentMovie: null,
@@ -129,6 +157,14 @@ export default {
     }
   },
   methods: {
+    updateColumns (columnName) {
+      this.fields = this.fields.map(field => {
+        if (field.key === columnName) {
+          field.show = !field.show
+        }
+        return field;
+      })
+    },
     updateMoviePositions (updated, toggle) {
       let position = 1;
 
@@ -228,6 +264,14 @@ export default {
     position: relative;
   }
   .filters {
+    .columns-checkbox {
+      display: flex;
+      justify-content: flex-end;
+
+      /deep/ .custom-checkbox {
+        margin-left: 1rem;
+      }
+    }
     text-align: right;
     .custom-checkbox:last-child {
       margin-right: 0;
@@ -236,12 +280,14 @@ export default {
   /deep/ tr.missing-data {
     background: rgba(255, 0, 0, 0.15);
   }
-  .more,
-  .trash {
-    cursor: pointer;
-    margin-right: 1rem;
+  .more-column {
+    display: inline-flex;
+    .more,
+    .trash {
+      cursor: pointer;
+      margin-right: 1rem;
+    }
   }
-
   .validity-checkbox {
     cursor: pointer;
   }
