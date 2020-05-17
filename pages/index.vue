@@ -58,6 +58,9 @@
       <template v-slot:cell(title)="row">
         <span class="title">{{row.item.title}}</span>
       </template>
+      <template
+        v-slot:cell(universe)="row"
+      >{{row.item.more.universe ? row.item.more.universe.name : ''}}</template>
       <template v-slot:cell(valid)="row">
         <input
           class="validity-checkbox"
@@ -111,9 +114,14 @@ export default {
         { key: 'title', sortable: true, show: true },
         { key: 'releaseDate', sortable: true, label: 'Year', show: true },
         { key: 'revenue', sortable: true, show: true },
-        { key: 'universe', sortable: true, show: false },
-        { key: 'cinematography', sortable: true, show: false },
-        { key: 'serie', sortable: true, show: false },
+        { key: 'universe', sortable: true, show: false,
+          sortByFormatted: true,
+          formatter: (value, key, item) => item.more.universe ? item.more.universe.name : '' },
+        { key: 'cinematography', sortable: true, show: false,
+          sortByFormatted: true,
+          formatter: (value, key, item) => item.more.cinematography ? item.more.cinematography.name : '' },
+        { key: 'serie', sortable: true, show: false, sortByFormatted: true,
+          formatter: (value, key, item) => item.more.serie ? item.more.serie.name : '' },
         { key: 'valid', show: true },
         { key: 'more', show: true },
       ],
