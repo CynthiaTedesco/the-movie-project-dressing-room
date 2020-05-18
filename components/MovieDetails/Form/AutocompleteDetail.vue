@@ -1,6 +1,6 @@
 <template>
-  <div :class="label" class="detail-row">
-    <label :for="field">{{label}}:</label>
+  <div :class="label || ''" class="detail-row">
+    <label v-if="label" :for="field" >{{label}}:</label>
     <v-select
       :options="dropdownItems"
       class="custom-dropdown"
@@ -8,7 +8,12 @@
       :value="value"
       @input="onSelect"
     ></v-select>
-    <font-awesome-icon v-if="showReset" class="reset" :icon="['fa', 'undo']" @click="reset" />
+    <font-awesome-icon
+      v-if="showReset && !hideReset"
+      class="reset"
+      :icon="['fa', 'undo']"
+      @click="reset"
+    />
   </div>
 </template>
 
@@ -36,8 +41,12 @@ export default {
   },
   props: {
     label: {
-      type: String,
+      type: [String, Boolean],
       required: true
+    },
+    hideReset: {
+      type: Boolean,
+      default: false
     },
     initialValue: [String, Object],
     field: {

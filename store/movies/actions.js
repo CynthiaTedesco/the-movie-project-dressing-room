@@ -48,5 +48,12 @@ export default {
     return this.$axios.post(`/movies/${id}/update`, updates).then(({data}) => {
       return dispatch('updateListAfterUpdate', data.updated)
     })
+  },
+  bulkUpdate({ dispatch }, {id, updates}){
+    return this.$axios
+      .post(`/movies/bulkUpdate`, updates)
+      .then(({ data }) => {
+        return data.updatedMovies;
+      })
   }
 }

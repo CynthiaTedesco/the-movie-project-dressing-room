@@ -3,8 +3,14 @@
     <div class="bulk">
       <div class="bulk-title">Bulk functions</div>
       <div class="bulk-functions">
+        <small>Bulk functions will iterate and process each of the movies. Be aware that this procedure may take several minutes.</small>
+        <br />
+        <br />
         <b-button @click="updatePeopleDetails">Update people details</b-button>
         <small>(gender and birthdate)</small>
+        <div class="mt-1">
+          <b-button @click="updateRevenues">Update revenues</b-button>
+        </div>
       </div>
       <b-modal ref="bulkModal" hide-footer no-close-on-backdrop no-close-on-esc hide-header>
         <div class="d-block text-center">
@@ -15,6 +21,7 @@
         </div>
       </b-modal>
     </div>
+    <div v-if="showSave" class="save-btn" @click="save">Save changes?</div>
     <b-col lg="12" class="filters">
       <b-button @click="showColumnFilters = !showColumnFilters">Filter columns</b-button>
       <b-button @click="showRowFilters = !showRowFilters">Filter rows</b-button>
@@ -22,7 +29,7 @@
         label-cols-sm="3"
         label-align-sm="right"
         label-size="sm"
-        class="mb-0"
+        class="mb-0 mt-1"
         v-if="showColumnFilters"
       >
         <div class="columns-checkbox mt-1">
@@ -58,9 +65,18 @@
       <template v-slot:cell(title)="row">
         <span class="title">{{row.item.title}}</span>
       </template>
-      <template
-        v-slot:cell(universe)="row"
-      >{{row.item.more.universe ? row.item.more.universe.name : ''}}</template>
+      <template v-slot:cell(universe)="row">
+        <autocomplete-detail
+          v-if="!row.item.more.universe"
+          :label="false"
+          field="universe"
+          :initial-value="row.item.more.universe"
+          @change="onChange($event, row.item)"
+          :hide-reset="true"
+          dropdown-url="universes"
+        />
+        <template>{{row.item.more.universe ? row.item.more.universe.name : ''}}</template>
+      </template>
       <template v-slot:cell(valid)="row">
         <input
           class="validity-checkbox"
@@ -94,6 +110,7 @@ import Vue from 'vue';
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faEdit, faEye, faExclamationCircle, faTrash, faSpinner, faFunnelDollar } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import AutocompleteDetail from '@/components/MovieDetails/Form/AutocompleteDetail'
 
 library.add(faSpinner)
 library.add(faEdit)
@@ -104,7 +121,7 @@ library.add(faExclamationCircle)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 export default {
-  components: { TheMovieDetail },
+  components: { TheMovieDetail, AutocompleteDetail },
   data () {
     return {
       showRowFilters: false,
@@ -114,14 +131,14 @@ export default {
         { key: 'title', sortable: true, show: true },
         { key: 'releaseDate', sortable: true, label: 'Year', show: true },
         { key: 'revenue', sortable: true, show: true },
-        { key: 'universe', sortable: true, show: false,
+        {          key: 'universe', sortable: true, show: false,
           sortByFormatted: true,
-          formatter: (value, key, item) => item.more.universe ? item.more.universe.name : '' },
-        { key: 'cinematography', sortable: true, show: false,
+          formatter: (value, key, item) => item.more.universe ? item.more.universe.name : ''        },
+        {          key: 'cinematography', sortable: true, show: false,
           sortByFormatted: true,
-          formatter: (value, key, item) => item.more.cinematography ? item.more.cinematography.name : '' },
-        { key: 'serie', sortable: true, show: false, sortByFormatted: true,
-          formatter: (value, key, item) => item.more.serie ? item.more.serie.name : '' },
+          formatter: (value, key, item) => item.more.cinematography ? item.more.cinematography.name : ''        },
+        {          key: 'serie', sortable: true, show: false, sortByFormatted: true,
+          formatter: (value, key, item) => item.more.serie ? item.more.serie.name : ''        },
         { key: 'valid', show: true },
         { key: 'more', show: true },
       ],
@@ -129,7 +146,9 @@ export default {
       currentMovie: null,
       movies: [],
       filters: [],
-      bulkAction: ''
+      bulkAction: '',
+      showSave: false,
+      changes: {}
     };
   },
   mounted () {
@@ -244,10 +263,10 @@ export default {
         this.filters.splice(this.filters.indexOf('missingData'), 1);
       }
     },
-    updatePeopleDetails () {
+    bulkActionFn (actionText, postUrl) {
       this.bulkAction = 'People details are';
       this.$refs['bulkModal'].show();
-      this.$axios.post('people/updateDetails').then(result => {
+      this.$axios.post(postUrl).then(result => {
         this.bulkAction = '';
         this.$refs['bulkModal'].hide();
         this.$toast.success(result.data);
@@ -256,6 +275,85 @@ export default {
         this.$refs['bulkModal'].hide();
         this.$toast.error(err);
       });
+    },
+    updateRevenues () {
+      this.bulkActionFn('Revenues are', 'movies/updateRevenues');
+    },
+    updatePeopleDetails () {
+      this.bulkActionFn('People details are', 'people/updateDetails');
+    },
+    onChange (params, movie) {
+      const { field, value, reset, subfield, list } = params;
+
+      let sameValueAsInitial = false;
+      const initialValue = !subfield ?
+        movie.more[field] :
+        (movie.more[field] ? movie.more[field][subfield] : null);
+      if (value) {
+        sameValueAsInitial = JSON.stringify(initialValue) === JSON.stringify(value);
+      } else {
+        sameValueAsInitial = !initialValue
+      }
+
+      if (sameValueAsInitial && this.changes[movie.more.id]) {
+        if (this.changes[movie.more.id][field]) {
+          delete this.changes[movie.more.id][field];
+          if (Object.keys(this.changes[movie.more.id]).length === 0) {
+            delete this.changes[movie.more.id];
+          }
+        }
+      } else {
+        if (!this.changes[movie.more.id]) {
+          this.changes[movie.more.id] = {}
+          this.changes[movie.more.id][field] = [];
+        } else if (!this.changes[movie.more.id][field]) {
+          this.changes[movie.more.id][field] = [];
+        }
+
+        let toPush;
+        if (value) {
+          if (subfield) {
+            toPush = {};
+            toPush[subfield] = value;
+          } else {
+            toPush = value;
+          }
+        } else if (list) {
+          toPush = { list };
+        } else {
+          toPush = null;
+        }
+        this.changes[movie.more.id][field].push(toPush);
+      }
+
+      this.showSave = Object.keys(this.changes).length > 0;
+    },
+    save () {
+      console.log('saving');
+
+      //prepare changes
+      Object.entries(this.changes).forEach(entry=> {
+        const movieId = entry[0];
+        const movieChanges = entry[1];
+        
+        Object.keys(movieChanges).forEach(key=>{
+          //we only keep the last change 
+          this.changes[movieId][key] = this.changes[movieId][key].pop();
+        })
+      });
+
+      this.$store.dispatch('movies/bulkUpdate', {
+        updates: this.changes
+      }).then(updatedMovies => {
+        updatedMovies.map(um=>{
+          this.updatedMovie(um);
+        })
+        this.$toast.success(`Succesfully updated!`);
+      })
+
+      //hide save button
+      this.changes = {};
+      this.showSave = false;
     }
   }
 };
@@ -272,15 +370,20 @@ export default {
     position: relative;
   }
   .filters {
+    text-align: right;
+    padding: 1rem;
     .columns-checkbox {
       display: flex;
       justify-content: flex-end;
 
       /deep/ .custom-checkbox {
         margin-left: 1rem;
+
+        .custom-control-label::before {
+          margin-top: -0.2rem;
+        }
       }
     }
-    text-align: right;
     .custom-checkbox:last-child {
       margin-right: 0;
     }
@@ -331,10 +434,10 @@ export default {
         color: #567abb;
         padding: 10px 20px;
         box-shadow: none;
-        font-weight: 600;
         text-transform: uppercase;
         font-size: 12px;
         letter-spacing: 1.05px;
+        margin: 1rem;
       }
     }
   }
@@ -351,5 +454,19 @@ export default {
     margin-top: 2rem;
     cursor: default;
   }
+}
+
+.save-btn {
+  background-color: #314963;
+  border-radius: 10px;
+  color: white;
+  font-style: italic;
+  padding: 10px;
+  z-index: 1;
+  cursor: pointer;
+  font-size: 1.3em;
+  text-align: center;
+  position: sticky;
+  top: 10px;
 }
 </style>
