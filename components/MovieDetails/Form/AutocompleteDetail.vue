@@ -53,6 +53,10 @@ export default {
       type: String,
       required: true
     },
+    subfield: {
+      type: String,
+      required: false
+    },
     dropdownUrl: {
       type: String,
       required: true
@@ -86,13 +90,19 @@ export default {
       const itemId = typeof this.initialValue === 'object' && this.initialValue ?
         this.initialValue.id :
         null;
-
-      this.$emit('change', {
+debugger//check reset value
+      const params = {
         field: this.field,
         value: this.value,
         itemId,
         reset: this.value === this.initialValue
-      })
+      };
+      if (this.subfield){
+        params.subfield = this.subfield;
+        params.list = [this.value] 
+      }
+
+      this.$emit('change', params)
     },
     reset () {
       this.onSelect(this.initialValue);

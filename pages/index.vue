@@ -37,6 +37,7 @@
           <b-form-checkbox @change="updateColumns('cinematography')" value="valid">Cinematography</b-form-checkbox>
           <b-form-checkbox @change="updateColumns('serie')" value="valid">Serie</b-form-checkbox>
           <b-form-checkbox @change="updateColumns('origin')" value="valid">Origin</b-form-checkbox>
+          <b-form-checkbox @change="updateColumns('language')" value="valid">Language</b-form-checkbox>
         </div>
       </b-form-group>
       <b-form-group
@@ -101,6 +102,19 @@
           dropdown-url="series"
         />
         <template>{{row.item.more.serie ? row.item.more.serie.name : ''}}</template>
+      </template>
+      <template v-slot:cell(language)="row">
+        <autocomplete-detail
+          v-if="!row.item.more.languages.find(a=>a.movies_languages.primary)"
+          :label="false"
+          field="languages"
+          subfield="primary"
+          :initial-value="row.item.more.languages.find(a=>a.movies_languages.primary)"
+          @change="onChange($event, row.item)"
+          :hide-reset="true"
+          dropdown-url="languages"
+        />
+        <template>{{row.item.more.languages.find(a=>a.movies_languages.primary) ? row.item.more.languages.find(a=>a.movies_languages.primary).name : ''}}</template>
       </template>
       <template v-slot:cell(origin)="row">
         <autocomplete-detail
@@ -178,6 +192,8 @@ export default {
           formatter: (value, key, item) => item.more.serie ? item.more.serie.name : ''        },
         {          key: 'origin', sortable: true, show: false, sortByFormatted: true,
           formatter: (value, key, item) => item.more.story_origin ? item.more.story_origin.name : ''        },
+        {          key: 'language', sortable: true, show: false, sortByFormatted: true,
+          formatter: (value, key, item) => item.more.languages.find(a=>a.primary) ? item.more.languages.find(a=>a.primary).name : ''        },
         { key: 'valid', show: true },
         { key: 'more', show: true },
       ],
@@ -310,7 +326,7 @@ export default {
       fn.then(result => {
         this.bulkAction = '';
         this.$refs['bulkModal'].hide();
-        if(result){
+        if (result) {
           this.$toast.success(result.data ? result.data.data : 'Success');
         }
       }).catch(err => {

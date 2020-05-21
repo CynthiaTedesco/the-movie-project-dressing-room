@@ -20,6 +20,37 @@
         dropdown-url="characters"
       ></CharactersTable>
     </div>
+    <autocomplete-detail 
+      label="Story Origin" 
+      field="story_origin" 
+      :initial-value="story_origin"
+      @change="onChange"
+      dropdown-url="origins"
+    />
+    <autocomplete-detail 
+      label="Universe" 
+      field="universe" 
+      :initial-value="universe"
+      @change="onChange"
+      dropdown-url="universes"
+    />
+    <autocomplete-detail 
+      label="Serie" 
+      field="serie" 
+      :initial-value="serie"
+      @change="onChange"
+      dropdown-url="series"
+    />
+    <div class="languages">
+      <label for="languages">Languages:</label>
+      <AssocTable
+        :initial-items="languages"
+        @change="onChange"
+        field="languages"
+        associative-table-name="movies_languages"
+        dropdown-url="languages"
+      ></AssocTable>
+    </div>
     <input-detail
       :textarea="true"
       label="Plot"
@@ -28,15 +59,6 @@
       :initial-value="plot_line"
       :rows="2"
     />
-    <autocomplete-detail 
-      label="Movie Origin" 
-      field="story_origin" 
-      :initial-value="story_origin"
-      @change="onChange"
-      dropdown-url="origins"
-    />
-    <div></div>
-    <div></div>
   </div>
 </template>
 
@@ -64,8 +86,9 @@ export default {
     cast_quantity: Number,
     characters: Array,
     story_origin: Object,
-    set_in_place: Object,
-    set_in_time: Object,
+    universe: Object,
+    serie: Object,
+    languages: Array,
     plot_line: String
   },
   methods: {
