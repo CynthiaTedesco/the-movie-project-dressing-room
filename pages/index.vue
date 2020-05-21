@@ -21,7 +21,7 @@
         </div>
       </b-modal>
     </div>
-    <div v-if="showSave" class="save-btn" @click="save">Save changes?</div>
+    <div v-if="showSave" class="save-btn" @click="updateMoviesInSitu">Save changes?</div>
     <b-col lg="12" class="filters">
       <b-button @click="showColumnFilters = !showColumnFilters">Filter columns</b-button>
       <b-button @click="showRowFilters = !showRowFilters">Filter rows</b-button>
@@ -36,6 +36,7 @@
           <b-form-checkbox @change="updateColumns('universe')" value="valid">Universe</b-form-checkbox>
           <b-form-checkbox @change="updateColumns('cinematography')" value="valid">Cinematography</b-form-checkbox>
           <b-form-checkbox @change="updateColumns('serie')" value="valid">Serie</b-form-checkbox>
+          <b-form-checkbox @change="updateColumns('origin')" value="valid">Origin</b-form-checkbox>
         </div>
       </b-form-group>
       <b-form-group
@@ -76,6 +77,42 @@
           dropdown-url="universes"
         />
         <template>{{row.item.more.universe ? row.item.more.universe.name : ''}}</template>
+      </template>
+      <template v-slot:cell(cinematography)="row">
+        <autocomplete-detail
+          v-if="!row.item.more.cinematography"
+          :label="false"
+          field="cinematography"
+          :initial-value="row.item.more.cinematography"
+          @change="onChange($event, row.item)"
+          :hide-reset="true"
+          dropdown-url="cinematographies"
+        />
+        <template>{{row.item.more.cinematography ? row.item.more.cinematography.name : ''}}</template>
+      </template>
+      <template v-slot:cell(serie)="row">
+        <autocomplete-detail
+          v-if="!row.item.more.serie"
+          :label="false"
+          field="serie"
+          :initial-value="row.item.more.serie"
+          @change="onChange($event, row.item)"
+          :hide-reset="true"
+          dropdown-url="series"
+        />
+        <template>{{row.item.more.serie ? row.item.more.serie.name : ''}}</template>
+      </template>
+      <template v-slot:cell(origin)="row">
+        <autocomplete-detail
+          v-if="!row.item.more.story_origin"
+          :label="false"
+          field="story_origin"
+          :initial-value="row.item.more.story_origin"
+          @change="onChange($event, row.item)"
+          :hide-reset="true"
+          dropdown-url="origins"
+        />
+        <template>{{row.item.more.story_origin ? row.item.more.story_origin.name : ''}}</template>
       </template>
       <template v-slot:cell(valid)="row">
         <input
@@ -139,6 +176,8 @@ export default {
           formatter: (value, key, item) => item.more.cinematography ? item.more.cinematography.name : ''        },
         {          key: 'serie', sortable: true, show: false, sortByFormatted: true,
           formatter: (value, key, item) => item.more.serie ? item.more.serie.name : ''        },
+        {          key: 'origin', sortable: true, show: false, sortByFormatted: true,
+          formatter: (value, key, item) => item.more.story_origin ? item.more.story_origin.name : ''        },
         { key: 'valid', show: true },
         { key: 'more', show: true },
       ],
@@ -263,18 +302,25 @@ export default {
         this.filters.splice(this.filters.indexOf('missingData'), 1);
       }
     },
-    bulkActionFn (actionText, postUrl) {
-      this.bulkAction = 'People details are';
+    bulkActionFn (actionText, postUrl, customFn) {
+      this.bulkAction = actionText;
       this.$refs['bulkModal'].show();
-      this.$axios.post(postUrl).then(result => {
+
+      const fn = customFn ? customFn() : this.$axios.post(postUrl);
+      fn.then(result => {
         this.bulkAction = '';
         this.$refs['bulkModal'].hide();
-        this.$toast.success(result.data);
+        if(result){
+          this.$toast.success(result.data ? result.data.data : 'Success');
+        }
       }).catch(err => {
         this.bulkAction = '';
         this.$refs['bulkModal'].hide();
         this.$toast.error(err);
       });
+    },
+    updateMoviesInSitu () {
+      this.bulkActionFn('Movies update is', null, this.save);
     },
     updateRevenues () {
       this.bulkActionFn('Revenues are', 'movies/updateRevenues');
@@ -284,7 +330,6 @@ export default {
     },
     onChange (params, movie) {
       const { field, value, reset, subfield, list } = params;
-
       let sameValueAsInitial = false;
       const initialValue = !subfield ?
         movie.more[field] :
@@ -332,20 +377,20 @@ export default {
       console.log('saving');
 
       //prepare changes
-      Object.entries(this.changes).forEach(entry=> {
+      Object.entries(this.changes).forEach(entry => {
         const movieId = entry[0];
         const movieChanges = entry[1];
-        
-        Object.keys(movieChanges).forEach(key=>{
+
+        Object.keys(movieChanges).forEach(key => {
           //we only keep the last change 
           this.changes[movieId][key] = this.changes[movieId][key].pop();
         })
       });
 
-      this.$store.dispatch('movies/bulkUpdate', {
+      const updatePromise = this.$store.dispatch('movies/bulkUpdate', {
         updates: this.changes
       }).then(updatedMovies => {
-        updatedMovies.map(um=>{
+        updatedMovies.map(um => {
           this.updatedMovie(um);
         })
         this.$toast.success(`Succesfully updated!`);
@@ -354,6 +399,8 @@ export default {
       //hide save button
       this.changes = {};
       this.showSave = false;
+
+      return updatePromise;
     }
   }
 };
@@ -437,7 +484,7 @@ export default {
         text-transform: uppercase;
         font-size: 12px;
         letter-spacing: 1.05px;
-        margin: 1rem;
+        margin: 0.5rem;
       }
     }
   }
@@ -468,5 +515,12 @@ export default {
   text-align: center;
   position: sticky;
   top: 10px;
+}
+
+table {
+  /deep/ .custom-dropdown {
+    min-width: 120px;
+    max-width: 150px;
+  }
 }
 </style>

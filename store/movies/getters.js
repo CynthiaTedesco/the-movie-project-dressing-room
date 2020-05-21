@@ -5,7 +5,7 @@ export default {
   sortedList(state) {
     return (sortBy = 'revenue') => {
       // TODO extend this getter with sorting by different types of fields
-      const list = [...state.list]
+      const list = [...state.list].filter(a=>!a.deletedAt)
       const sortedList = list.sort(
         (a, b) => -parseInt(a[sortBy]) + parseInt(b[sortBy])
       )
