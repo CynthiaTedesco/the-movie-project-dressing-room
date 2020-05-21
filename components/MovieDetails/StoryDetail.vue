@@ -16,6 +16,7 @@
         :initial-items="characters"
         @change="onChange"
         field="characters"
+        :release_date="release_date"
         associative-table-name="movies_characters"
         dropdown-url="characters"
       ></CharactersTable>
@@ -89,7 +90,8 @@ export default {
     universe: Object,
     serie: Object,
     languages: Array,
-    plot_line: String
+    plot_line: String,
+    release_date: String
   },
   methods: {
     onChange (params) {

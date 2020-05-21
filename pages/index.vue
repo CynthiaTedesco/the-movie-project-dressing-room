@@ -146,7 +146,18 @@
             :icon="['fas', row.item.missingData.length ? 'edit' : 'eye']"
             @click="displayDetailSection(row.item)"
           />
-          <font-awesome-icon class="trash" :icon="['fas', 'trash']" @click="deleteMovie(row.item)" />
+          <font-awesome-icon
+            class="trash"
+            :icon="['fas', 'trash']"
+            @click="deleteMovie(row.item)"
+            title="delete"
+          />
+          <font-awesome-icon
+            class="refresh"
+            :icon="['fas', 'sync']"
+            @click="refreshMovie(row.item)"
+            title="Autoupdate"
+          />
         </div>
       </template>
     </b-table>
@@ -159,7 +170,7 @@ import { beautifyCashValue, calculateMissingData } from '@/assets/js/helpers.js'
 import TheMovieDetail from '@/components/TheMovieDetail';
 import Vue from 'vue';
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faEdit, faEye, faExclamationCircle, faTrash, faSpinner, faFunnelDollar } from '@fortawesome/free-solid-svg-icons'
+import { faEdit, faEye, faExclamationCircle, faTrash, faSpinner, faFunnelDollar, faSync } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import AutocompleteDetail from '@/components/MovieDetails/Form/AutocompleteDetail'
 
@@ -167,6 +178,7 @@ library.add(faSpinner)
 library.add(faEdit)
 library.add(faEye)
 library.add(faTrash)
+library.add(faSync)
 library.add(faExclamationCircle)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
@@ -193,7 +205,7 @@ export default {
         {          key: 'origin', sortable: true, show: false, sortByFormatted: true,
           formatter: (value, key, item) => item.more.story_origin ? item.more.story_origin.name : ''        },
         {          key: 'language', sortable: true, show: false, sortByFormatted: true,
-          formatter: (value, key, item) => item.more.languages.find(a=>a.primary) ? item.more.languages.find(a=>a.primary).name : ''        },
+          formatter: (value, key, item) => item.more.languages.find(a => a.primary) ? item.more.languages.find(a => a.primary).name : ''        },
         { key: 'valid', show: true },
         { key: 'more', show: true },
       ],
@@ -281,6 +293,19 @@ export default {
       }
       this.movies = updatedMovies;
     },
+    refreshMovie (movie) {
+      const fn = () => {
+        return this.$store.dispatch('movies/autoUpdate', movie.more.imdb_id)
+      }
+      this.bulkActionFn('Movie update is', null, fn)
+        .then(() => {
+          // this.movies = this.movies.filter(fm => fm.more.id !== movie.more.id);
+          // if (movie.position) {
+          this.updateMoviePositions();
+          // }
+          // this.$toast.success(`Auto update successfuly done`);
+        })
+    },
     deleteMovie (movie) {
       this.$store.dispatch('movies/deleteMovie', movie.more.id).then(() => {
         this.movies = this.movies.filter(fm => fm.more.id !== movie.more.id);
@@ -323,12 +348,10 @@ export default {
       this.$refs['bulkModal'].show();
 
       const fn = customFn ? customFn() : this.$axios.post(postUrl);
-      fn.then(result => {
+      return fn.then(result => {
         this.bulkAction = '';
         this.$refs['bulkModal'].hide();
-        if (result) {
-          this.$toast.success(result.data ? result.data.data : 'Success');
-        }
+        this.$toast.success(result && result.data ? (result.data.data || result.data.message) : 'Success');
       }).catch(err => {
         this.bulkAction = '';
         this.$refs['bulkModal'].hide();

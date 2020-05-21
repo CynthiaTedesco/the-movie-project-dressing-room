@@ -111,6 +111,7 @@ export default {
       type: Array,
       required: true
     },
+    release_date: String,
     fields: {
       type: Array,
       default: () => [
@@ -171,12 +172,12 @@ export default {
       return true;
     },
     calculateAge (date) {
-      if (!date) { return '' }
-      if (!isValid(new Date(date))) {
+      if (!date || !this.release_date) { return '' }
+      if (!isValid(new Date(date)) || !isValid(new Date(this.release_date))) {
         return '';
       }
 
-      const diff_ms = Date.now() - new Date(date).getTime();
+      const diff_ms = new Date(this.release_date).getTime() - new Date(date).getTime();
       const age_dt = new Date(diff_ms);
 
       return Math.abs(age_dt.getUTCFullYear() - 1970);

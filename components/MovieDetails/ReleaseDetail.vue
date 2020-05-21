@@ -35,7 +35,7 @@
       @change="onChange"
       :initial-value="release_date"
     />
-    <div class="producers">
+    <!-- <div class="producers">
       <label for="producers">Producers:</label>
       <AssocTable
         :initial-items="producers"
@@ -44,7 +44,7 @@
         associative-table-name="movies_producers"
         dropdown-url="producers"
       ></AssocTable>
-    </div>
+    </div> -->
     <div class="restrictions">
       <label for="restrictions">Restrictions:</label>
       <AssocTable
