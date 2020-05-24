@@ -11,6 +11,9 @@
         <div class="mt-1">
           <b-button @click="updateRevenues">Update revenues</b-button>
         </div>
+        <div class="mt-1">
+          <b-button @click="updateAll">Autoupdate all movies</b-button>
+        </div>
       </div>
       <b-modal ref="bulkModal" hide-footer no-close-on-backdrop no-close-on-esc hide-header>
         <div class="d-block text-center">
@@ -364,6 +367,9 @@ export default {
     updateRevenues () {
       this.bulkActionFn('Revenues are', 'movies/updateRevenues');
     },
+    updateAll(){
+      this.bulkActionFn('Massive autoupdate is', 'movies/autoUpdateAll');
+    },
     updatePeopleDetails () {
       this.bulkActionFn('People details are', 'people/updateDetails');
     },
@@ -421,7 +427,7 @@ export default {
         const movieChanges = entry[1];
 
         Object.keys(movieChanges).forEach(key => {
-          //we only keep the last change 
+          //we only keep the last change
           this.changes[movieId][key] = this.changes[movieId][key].pop();
         })
       });

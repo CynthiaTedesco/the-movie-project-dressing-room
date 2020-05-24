@@ -12,32 +12,32 @@
     </div>
     <div class="characters">
       <label for="characters">Characters:</label>
-      <CharactersTable
+      <PeopleTable
         :initial-items="characters"
         @change="onChange"
         field="characters"
         :release_date="release_date"
         associative-table-name="movies_characters"
         dropdown-url="characters"
-      ></CharactersTable>
+      ></PeopleTable>
     </div>
-    <autocomplete-detail 
-      label="Story Origin" 
-      field="story_origin" 
+    <autocomplete-detail
+      label="Story Origin"
+      field="story_origin"
       :initial-value="story_origin"
       @change="onChange"
       dropdown-url="origins"
     />
-    <autocomplete-detail 
-      label="Universe" 
-      field="universe" 
+    <autocomplete-detail
+      label="Universe"
+      field="universe"
       :initial-value="universe"
       @change="onChange"
       dropdown-url="universes"
     />
-    <autocomplete-detail 
-      label="Serie" 
-      field="serie" 
+    <autocomplete-detail
+      label="Serie"
+      field="serie"
       :initial-value="serie"
       @change="onChange"
       dropdown-url="series"
@@ -66,7 +66,7 @@
 <script>
 import InputDetail from '@/components/MovieDetails/Form/InputDetail';
 import AssocTable from '@/components/MovieDetails/Form/AssocTable';
-import CharactersTable from '@/components/MovieDetails/Form/CharactersTable';
+import PeopleTable from '@/components/MovieDetails/Form/PeopleTable';
 import AutocompleteDetail from '@/components/MovieDetails/Form/AutocompleteDetail';
 
 export default {
@@ -78,7 +78,7 @@ export default {
   components: {
     InputDetail,
     AssocTable,
-    CharactersTable,
+    PeopleTable,
     AutocompleteDetail
   },
   props: {

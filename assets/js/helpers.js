@@ -28,12 +28,9 @@ export function calculateMissingData(movie) {
   // if (!movie.plot_line) {
   //   missingFields.push({ attr: 'plot_line', cause: 'missing', menu: 'Story' })
   // }
-  // if (!movie.budget) {
-  //   missingFields.push({ attr: 'budget', cause: 'missing', menu: 'Production' })
-  // }
-  // if (!movie.cast_quantity) {
-  //   missingFields.push({ attr: 'cast_quantity', cause: 'missing', menu: '' })
-  // }
+  if (!movie.budget) {
+    missingFields.push({ attr: 'budget', cause: 'missing', menu: 'Production' })
+  }
   // if (!movie.website) {
   //   missingFields.push({ attr: 'website', cause: 'missing', menu: '' })
   // }
@@ -65,16 +62,6 @@ export function calculateMissingData(movie) {
   // if (!movie.type) {
   //   missingFields.push({ attr: 'type', cause: 'missing', menu: '' })
   // }
-  // if (!movie.set_in_place) {
-  //   missingFields.push({
-  //     attr: 'set_in_place',
-  //     cause: 'missing',
-  //     menu: 'Story'
-  //   })
-  // }
-  if (!movie.set_in_time) {
-    missingFields.push({ attr: 'set_in_time', cause: 'missing', menu: 'Story' })
-  }
   // if (!movie.genres.length) {
   //   missingFields.push({ attr: 'genres', cause: 'missing', menu: 'Story' })
   // } else {
@@ -160,81 +147,46 @@ export function calculateMissingData(movie) {
     }
   }
 
-  // if (!movie.directors.length) {
-  //   missingFields.push({
-  //     attr: 'directors',
-  //     cause: 'missing',
-  //     menu: 'Production'
-  //   })
-  // } else {
-  //   const mainDirector = movie.directors.find(
-  //     director => director.movies_directors.main
-  //   )
-  //   if (!mainDirector) {
-  //     missingFields.push({
-  //       attr: 'main_director',
-  //       cause: 'missing',
-  //       menu: 'Production'
-  //     })
-  //   } else {
-  //     if (!mainDirector.name) {
-  //       missingFields.push({
-  //         attr: 'main_director_name',
-  //         cause: 'missing',
-  //         menu: 'Production'
-  //       })
-  //     }
-  //     if (!mainDirector.data_of_birth) {
-  //       missingFields.push({
-  //         attr: 'main_director_birth',
-  //         cause: 'missing',
-  //         menu: 'Production'
-  //       })
-  //     }
-  //     if (!mainDirector.gender) {
-  //       missingFields.push({
-  //         attr: 'main_director_gender',
-  //         cause: 'missing',
-  //         menu: 'Production'
-  //       })
-  //     }
-  //   }
-  // }
-
-  // if (!movie.writers.length) {
-  //   missingFields.push({
-  //     attr: 'writers',
-  //     cause: 'missing',
-  //     menu: ''
-  //   })
-  // } else {
-  //   const mainWriter = movie.writers.find(writer => writer.movies_writers.main)
-  //   if (!mainWriter) {
-  //     missingFields.push({ attr: 'main_writer', cause: 'missing', menu: '' })
-  //   } else {
-  //     if (!mainWriter.name) {
-  //       missingFields.push({
-  //         attr: 'main_writer_name',
-  //         cause: 'missing',
-  //         menu: ''
-  //       })
-  //     }
-  //     if (!mainWriter.data_of_birth) {
-  //       missingFields.push({
-  //         attr: 'main_writer_birth',
-  //         cause: 'missing',
-  //         menu: ''
-  //       })
-  //     }
-  //     if (!mainWriter.gender) {
-  //       missingFields.push({
-  //         attr: 'main_writer_gender',
-  //         cause: 'missing',
-  //         menu: ''
-  //       })
-  //     }
-  //   }
-  // }
+  if (!movie.directors.length) {
+    missingFields.push({
+      attr: 'directors',
+      cause: 'missing',
+      menu: 'Production'
+    })
+  } else {
+    const mainDirector = movie.directors.find(
+      director => director.movies_directors.primary
+    )
+    if (!mainDirector) {
+      missingFields.push({
+        attr: 'main_director',
+        cause: 'missing',
+        menu: 'Production'
+      })
+    } else {
+      if (!mainDirector.name) {
+        missingFields.push({
+          attr: 'main_director_name',
+          cause: 'missing',
+          menu: 'Production'
+        })
+      }
+      if (!mainDirector.date_of_birth) {
+        missingFields.push({
+          attr: 'main_director_birth',
+          cause: 'missing',
+          menu: 'Production'
+        })
+      }
+      if (!mainDirector.gender) {
+        missingFields.push({
+          attr: 'main_director_gender',
+          cause: 'missing',
+          menu: 'Production'
+        })
+      }
+    }
+  }
 
   return missingFields
 }

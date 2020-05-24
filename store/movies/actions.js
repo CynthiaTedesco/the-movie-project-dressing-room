@@ -55,6 +55,7 @@ export default {
       return data.updatedMovies
     })
   },
+  //fetch movies
   autoUpdate({ dispatch }, imdbID) {
     return this.$axios.post(`/movies/autoUpdate`, {imdb_id:imdbID})
   },

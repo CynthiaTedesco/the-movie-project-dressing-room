@@ -36,6 +36,16 @@
           :checked="row.item.id === main"
           @change="mainChanged(row.item.id, row.item)"
         />
+        </template>
+        <template v-slot:cell(primary)="row">
+        <input
+          class="main-checkbox"
+          type="radio"
+          name="main"
+          id="main"
+          :checked="row.item.id === main"
+          @change="mainChanged(row.item.id, row.item)"
+        />
       </template>
       <template v-slot:cell(id)="row">
         <font-awesome-icon class="trash" :icon="['fas', 'trash']" @click="deleteItem(row.item)" />
@@ -44,12 +54,14 @@
       <template v-slot:row-details="row">
         <div class="spotted-details">
           <input-detail
+            v-if="associativeTableName==='movies_characters'"
             label="Character name"
             field="character_name"
             @change="characterNameChanged"
             :initial-value="row.item"
           />
           <dropdown-detail
+            v-if="associativeTableName==='movies_characters'"
             label="Type"
             field="type"
             url="character_types"
@@ -78,32 +90,32 @@
 </template>
 
 <script>
-import { isValid, format } from 'date-fns';
-import Vue from 'vue';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faUndo, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import InputDetail from '@/components/MovieDetails/Form/InputDetail';
-import DropdownDetail from '@/components/MovieDetails/Form/DropdownDetail';
-import DateDetail from '@/components/MovieDetails/Form/DateDetail';
+import { isValid, format } from "date-fns";
+import Vue from "vue";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faUndo, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import InputDetail from "@/components/MovieDetails/Form/InputDetail";
+import DropdownDetail from "@/components/MovieDetails/Form/DropdownDetail";
+import DateDetail from "@/components/MovieDetails/Form/DateDetail";
 
-library.add(faTrash)
-library.add(faUndo)
-Vue.component('font-awesome-icon', FontAwesomeIcon)
+library.add(faTrash);
+library.add(faUndo);
+Vue.component("font-awesome-icon", FontAwesomeIcon);
 
 export default {
-  data () {
+  data() {
     return {
       items: [],
       main: null,
       showReset: false,
       dropdownItems: [],
       genderList: [
-        { id: 0, name: 'Non-specified' },
-        { id: 1, name: 'Female' },
-        { id: 2, name: 'Male' }
+        { id: 0, name: "Non-specified" },
+        { id: 1, name: "Female" },
+        { id: 2, name: "Male" }
       ]
-    }
+    };
   },
   components: { InputDetail, DropdownDetail, DateDetail },
   props: {
@@ -115,11 +127,10 @@ export default {
     fields: {
       type: Array,
       default: () => [
-        { key: 'name', label: "Actor/Actress" },
-        { key: 'gender', label: 'Gender' },
-        { key: 'date_of_birth', label: 'Age' },
-        { key: 'main', label: 'Lead' },
-        { key: 'id', label: '' }]
+        { key: "name", label: "Actor/Actress" },
+        { key: "gender", label: "Gender" },
+        { key: "date_of_birth", label: "Age" }
+      ]
     },
     field: {
       type: String,
@@ -128,20 +139,33 @@ export default {
     dropdownUrl: {
       type: String,
       required: true
+    },
+    associativeTableName: {
+      type: String,
+      require: true
     }
   },
-  beforeMount () {
-    this.items = JSON.parse(JSON.stringify(this.initialItems))//deep copy
+  beforeMount() {
+    if(this.associativeTableName==='movies_characters'){
+      this.fields.push({ key: "main", label: "Lead" })
+    } else {
+      this.fields.push({ key: "primary", label: "Primary" })
+    }
+    this.fields.push({ key: "id", label: "" });
+    
+    this.items = JSON.parse(JSON.stringify(this.initialItems)) //deep copy
       .map(item => {
         item._showDetails = this.initialMain === item.id;
-        item.character_name = item.movies_characters.character_name;
-        item.type = item.movies_characters.type;
+        if (this.associativeTableName === "movies_characters") {
+          item.character_name = item.movies_characters.character_name;
+          item.type = item.movies_characters.type;
+        }
         return item;
       });
 
     this.main = this.initialMain;
   },
-  mounted () {
+  mounted() {
     this.$axios(this.dropdownUrl).then(({ data }) => {
       this.dropdownItems = data.sort((a, b) => {
         if (a.name > b.name) {
@@ -151,49 +175,55 @@ export default {
           return -1;
         }
         return 0;
-      })
+      });
     });
   },
   computed: {
-    initialMain () {
-      let mainCharacter = this.initialItems
-        .find(item => item.movies_characters.main);
-      return mainCharacter ? mainCharacter.id : null;
+    initialMain() {
+      let main = this.initialItems.find(
+        item => item[this.associativeTableName].main
+      );
+      return main ? main.id : null;
     }
   },
   methods: {
-    validateAge (date) {
+    validateAge(date) {
       const age = this.calculateAge(date);
-      if (!!date && !age) { return false }
+      if (!!date && !age) {
+        return false;
+      }
       if (age < 0 || age > 120) {
         return false;
       }
 
       return true;
     },
-    calculateAge (date) {
-      if (!date || !this.release_date) { return '' }
+    calculateAge(date) {
+      if (!date || !this.release_date) {
+        return "";
+      }
       if (!isValid(new Date(date)) || !isValid(new Date(this.release_date))) {
-        return '';
+        return "";
       }
 
-      const diff_ms = new Date(this.release_date).getTime() - new Date(date).getTime();
+      const diff_ms =
+        new Date(this.release_date).getTime() - new Date(date).getTime();
       const age_dt = new Date(diff_ms);
 
       return Math.abs(age_dt.getUTCFullYear() - 1970);
     },
-    emitChange (reset = null) {
-      this.$emit('change', {
+    emitChange(reset = null) {
+      this.$emit("change", {
         field: this.field,
-        subfield: 'movies_characters',
+        subfield: this.associativeTableName,
         list: this.items,
         reset: reset != null ? reset : this.asInitial()
-      })
+      });
     },
-    onRowClick (record, index, la, b) {
+    onRowClick(record, index, la, b) {
       record._showDetails = !record._showDetails;
     },
-    selectNewArtist (assocIndex, dropdownItem) {
+    selectNewArtist(assocIndex, dropdownItem) {
       this.items = this.items.map((it, index) => {
         if (index === assocIndex) {
           it.name = dropdownItem.name;
@@ -204,24 +234,31 @@ export default {
       this.showReset = true;
       this.emitChange();
     },
-    addRow () {
-      this.items.push({
+    addRow() {
+      let toPush = {
         new: true,
-        name: '',
-        movies_characters: {
+        name: ""
+      };
+      if (this.associativeTableName === "movies_characters") {
+        toPush.movies_characters = {
           main: false,
           character_name: null,
           type: null
-        }
-      });
+        };
+      } else {
+        //directors
+        toPush.movies_directors = { primary: false };
+      }
+
+      this.items.push(toPush);
     },
-    reset () {
+    reset() {
       this.items = JSON.parse(JSON.stringify(this.initialItems)); //deep copy
       this.main = this.initialMain;
       this.emitChange(true);
       this.showReset = false;
     },
-    deleteItem (item) {
+    deleteItem(item) {
       this.items = this.items.filter(item2 => item2.name != item.name);
 
       //deleting a persisted one
@@ -230,23 +267,27 @@ export default {
       }
       this.emitChange();
     },
-    mainChanged (newMain, item) {
+    mainChanged(newMain, item) {
       this.items = this.items.map(item => {
-        item.movies_characters.main = newMain === item.id;
+        item[this.associativeTableName][
+          this.associativeTableName === "movies_characters" ? "main" : "primary"
+        ] = newMain === item.id;
         return item;
       });
       this.main = newMain;
       this.showReset = newMain != this.initialMain;
       this.emitChange();
     },
-    asInitial () {
+    asInitial() {
       let equal = true;
       if (this.items.length != this.initialItems.length) {
         equal = false;
       } else {
         //compare item by item
         this.items.map((newItem, index) => {
-          if (JSON.stringify(newItem) != JSON.stringify(this.initialItems[index])) {
+          if (
+            JSON.stringify(newItem) != JSON.stringify(this.initialItems[index])
+          ) {
             equal = false;
           }
         });
@@ -254,7 +295,7 @@ export default {
 
       return equal;
     },
-    characterNameChanged (data) {
+    characterNameChanged(data) {
       this.items = this.items.map(item => {
         if (item.id === data.itemId) {
           item.movies_characters.character_name = data.value;
@@ -264,7 +305,7 @@ export default {
       });
       this.emitChange();
     },
-    characterTypeChanged (data) {
+    characterTypeChanged(data) {
       this.items = this.items.map(item => {
         if (item.id === data.itemId) {
           const newType = data && data.value ? data.value.id : null;
@@ -275,7 +316,7 @@ export default {
       });
       this.emitChange();
     },
-    genderChanged (data) {
+    genderChanged(data) {
       this.items = this.items.map(item => {
         if (item.id === data.itemId) {
           item.gender = data && data.value ? data.value.name : null;
@@ -284,21 +325,23 @@ export default {
       });
       this.emitChange();
     },
-    birthDateChanged (data) {
+    birthDateChanged(data) {
       this.items = this.items.map(item => {
         if (item.id === data.itemId) {
-          item.date_of_birth = data ? format(new Date(data.value), 'MM/dd/yyyy') : null;
+          item.date_of_birth = data
+            ? format(new Date(data.value), "MM/dd/yyyy")
+            : null;
         }
         return item;
       });
       this.emitChange();
-    },
+    }
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
-@import '~/assets/styles/common.scss';
+@import "~/assets/styles/common.scss";
 
 .assoc-table-container {
   margin-bottom: 2rem;
