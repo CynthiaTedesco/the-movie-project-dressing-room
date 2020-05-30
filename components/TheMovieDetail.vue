@@ -196,7 +196,7 @@ export default {
           revenueHasChanged = true;
         }
 
-        //we only keep the last change 
+        //we only keep the last change
         this.changes[field] = this.changes[field].pop();
         if (this.changes[field] && this.changes[field].list) {
           this.changes[field] = this.changes[field].list;

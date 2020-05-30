@@ -28,18 +28,18 @@ export function calculateMissingData(movie) {
   // if (!movie.plot_line) {
   //   missingFields.push({ attr: 'plot_line', cause: 'missing', menu: 'Story' })
   // }
-  if (!movie.budget) {
-    missingFields.push({ attr: 'budget', cause: 'missing', menu: 'Production' })
-  }
+  // if (!movie.budget) {
+  //   missingFields.push({ attr: 'budget', cause: 'missing', menu: 'Production' })
+  // }
   // if (!movie.website) {
   //   missingFields.push({ attr: 'website', cause: 'missing', menu: '' })
   // }
-  // if (!movie.word_count) {
-  //   missingFields.push({ attr: 'word_count', cause: 'missing', menu: 'Script' })
-  // }
-  // if (!movie.most_used_word) {
-  //   missingFields.push({ attr: 'most_used_word', cause: 'missing', menu: '' })
-  // }
+  if (!movie.word_count) {
+    missingFields.push({ attr: 'word_count', cause: 'missing', menu: 'Script' })
+  }
+  if (!movie.most_used_word) {
+    missingFields.push({ attr: 'most_used_word', cause: 'missing', menu: '' })
+  }
   // if (!movie.revenue) {
   //   missingFields.push({ attr: 'revenue', cause: 'missing', menu: 'General' })
   // }

@@ -152,7 +152,7 @@ export default {
       this.fields.push({ key: "primary", label: "Primary" })
     }
     this.fields.push({ key: "id", label: "" });
-    
+
     this.items = JSON.parse(JSON.stringify(this.initialItems)) //deep copy
       .map(item => {
         item._showDetails = this.initialMain === item.id;
@@ -181,7 +181,7 @@ export default {
   computed: {
     initialMain() {
       let main = this.initialItems.find(
-        item => item[this.associativeTableName].main
+        item => item[this.associativeTableName].main || item[this.associativeTableName].primary
       );
       return main ? main.id : null;
     }

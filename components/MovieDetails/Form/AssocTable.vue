@@ -29,6 +29,14 @@
           @change="primaryChanged(row.item.id, row.item)"
         />
       </template>
+      <template v-slot:cell(country)="row">
+        <input-detail
+          :hideLabel="true"
+          field="country"
+          @change="countryChanged(row.item.id, row.item)"
+          :initial-value="row.item.country"
+        />
+      </template>
       <template v-slot:cell(id)="row">
         <font-awesome-icon class="trash" :icon="['fas', 'trash']" @click="deleteItem(row.item)" />
       </template>
@@ -38,23 +46,27 @@
 </template>
 
 <script>
-import Vue from 'vue';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faUndo, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import Vue from "vue";
+import InputDetail from "@/components/MovieDetails/Form/InputDetail.vue";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faUndo, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
-library.add(faTrash)
-library.add(faUndo)
-Vue.component('font-awesome-icon', FontAwesomeIcon)
+library.add(faTrash);
+library.add(faUndo);
+Vue.component("font-awesome-icon", FontAwesomeIcon);
 
 export default {
-  data () {
+  components:{
+    InputDetail
+  },
+  data() {
     return {
       items: [],
       primary: null,
       showReset: false,
       dropdownItems: []
-    }
+    };
   },
   props: {
     initialItems: {
@@ -67,7 +79,7 @@ export default {
     },
     fields: {
       type: Array,
-      default: () => ['name', 'primary', { key: 'id', label: '' }]
+      default: () => ["name", "primary", { key: "id", label: "" }]
     },
     field: {
       type: String,
@@ -78,13 +90,13 @@ export default {
       required: true
     }
   },
-  beforeMount () {
+  beforeMount() {
     this.items = JSON.parse(JSON.stringify(this.initialItems)); //deep copy
     if (this.items.length) {
       this.primary = this.initialPrimary;
     }
   },
-  mounted () {
+  mounted() {
     this.$axios(this.dropdownUrl).then(({ data }) => {
       this.dropdownItems = data.sort((a, b) => {
         if (a.name > b.name) {
@@ -94,18 +106,22 @@ export default {
           return -1;
         }
         return 0;
-      })
+      });
     });
   },
   computed: {
-    initialPrimary () {
+    initialPrimary() {
       if (!this.initialItems.length) return null;
 
-      return (this.initialItems.find(item => item[this.associativeTableName].primary)|| {} ).id;
+      return (
+        this.initialItems.find(
+          item => item[this.associativeTableName].primary
+        ) || {}
+      ).id;
     }
   },
   methods: {
-    select (assocIndex, dropdownItem) {
+    select(assocIndex, dropdownItem) {
       this.items = this.items.map((it, index) => {
         if (index === assocIndex) {
           it.name = dropdownItem.name;
@@ -114,71 +130,88 @@ export default {
         return it;
       });
       this.showReset = true;
-      this.$emit('change', {
+      this.$emit("change", {
         field: this.field,
         subfield: this.associativeTableName,
         list: this.items,
         reset: this.asInitial()
-      })
+      });
     },
-    addRow () {
+    addRow() {
       let itemToBePushed = {
         new: true,
-        name: ''
-      }
-      itemToBePushed[this.associativeTableName] = { primary: false }
+        name: ""
+      };
+      itemToBePushed[this.associativeTableName] = { primary: false };
       this.items.push(itemToBePushed);
     },
-    reset () {
+    reset() {
       this.items = JSON.parse(JSON.stringify(this.initialItems)); //deep copy
       this.primary = this.initialPrimary;
-      this.$emit('change', {
+      this.$emit("change", {
         field: this.field,
         reset: true
-      })
+      });
       this.showReset = false;
     },
-    deleteItem (item) {
+    deleteItem(item) {
       this.items = this.items.filter(item2 => item2.name != item.name);
 
       //deleting a persisted one
       if (!item.new) {
         this.showReset = true;
       }
-      this.$emit('change', {
+      this.$emit("change", {
         field: this.field,
         subfield: this.associativeTableName,
         list: this.items,
         reset: this.asInitial()
-      })
+      });
     },
-    primaryChanged (newPrimary, item) {
+    countryChanged(newCountry, item) {
+      this.showReset = item.country != newCountry;
+      this.$emit("change", {
+        field: this.field,
+        subfield: this.associativeTableName,
+        list: this.items,
+        reset: this.asInitial()
+      });
+    },
+    primaryChanged(newPrimary, item) {
       this.items = this.items.map(item => {
         item[this.associativeTableName].primary = newPrimary === item.id;
         return item;
       });
       this.primary = newPrimary;
       this.showReset = newPrimary != this.initialPrimary;
-      this.$emit('change', {
+      this.$emit("change", {
         field: this.field,
         subfield: this.associativeTableName,
         list: this.items,
         reset: this.asInitial()
-      })
+      });
     },
-    asInitial () {
+    asInitial() {
       let equal = true;
       if (this.items.length != this.initialItems.length) {
         equal = false;
       } else {
-        const newPrimary = this.items.find(item => item[this.associativeTableName].primary).id;
+        const newPrimary = this.items.find(
+          item => item[this.associativeTableName].primary
+        ).id;
         if (newPrimary != this.initialPrimary) {
           equal = false;
         }
 
         //check if the elements are all the same
-        const newIds = this.items.map(it1 => it1.id).sort((a, b) => a - b).join('');
-        const oldIds = this.initialItems.map(it1 => it1.id).sort((a, b) => a - b).join('');
+        const newIds = this.items
+          .map(it1 => it1.id)
+          .sort((a, b) => a - b)
+          .join("");
+        const oldIds = this.initialItems
+          .map(it1 => it1.id)
+          .sort((a, b) => a - b)
+          .join("");
         if (newIds != oldIds) {
           equal = false;
         }
@@ -187,7 +220,7 @@ export default {
       return equal;
     }
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>

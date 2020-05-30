@@ -1,7 +1,7 @@
 <template>
   <div class="detail-row">
     <label v-if="!hideLabel" :for="label">{{label}}:</label>
-    <div :id="label" @click="startEditing">
+    <div :id="label || field" @click="startEditing">
       <template v-if="editing">
         <textarea
           ref="textarea"
@@ -86,9 +86,9 @@ export default {
     },
     label: {
       type: String,
-      required: true
+      required: false
     },
-    initialValue: [String, Object],
+    initialValue: [String, Object, Number],
     rows: {
       type: Number,
       default: 1
