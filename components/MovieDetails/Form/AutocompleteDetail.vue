@@ -90,7 +90,7 @@ export default {
       const itemId = typeof this.initialValue === 'object' && this.initialValue ?
         this.initialValue.id :
         null;
-debugger//check reset value
+
       const params = {
         field: this.field,
         value: this.value,
@@ -99,7 +99,7 @@ debugger//check reset value
       };
       if (this.subfield){
         params.subfield = this.subfield;
-        params.list = [this.value] 
+        params.list = [this.value]
       }
 
       this.$emit('change', params)
@@ -115,6 +115,7 @@ debugger//check reset value
 <style lang="scss" scoped>
 .custom-dropdown {
   margin-right: 50px;
+  min-width: 70px;
 }
 /deep/ .vs__dropdown-toggle {
   height: 35px;

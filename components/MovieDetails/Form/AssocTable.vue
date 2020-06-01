@@ -30,6 +30,17 @@
         />
       </template>
       <template v-slot:cell(country)="row">
+        <autocomplete-detail
+          v-if="!row.item.country"
+          :label="false"
+          field="country"
+          :initial-value="row.item.country"
+          @change="countryChanged(row.item.id, row.item)"
+          :hide-reset="true"
+          dropdown-url="production_countries"
+        />
+        <template>{{row.item.country ? row.item.country: ''}}</template>
+
         <input-detail
           :hideLabel="true"
           field="country"
@@ -51,6 +62,7 @@ import InputDetail from "@/components/MovieDetails/Form/InputDetail.vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUndo, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import AutocompleteDetail from "@/components/MovieDetails/Form/AutocompleteDetail";
 
 library.add(faTrash);
 library.add(faUndo);
@@ -58,7 +70,8 @@ Vue.component("font-awesome-icon", FontAwesomeIcon);
 
 export default {
   components:{
-    InputDetail
+    InputDetail,
+    AutocompleteDetail
   },
   data() {
     return {
@@ -198,8 +211,9 @@ export default {
       } else {
         const newPrimary = this.items.find(
           item => item[this.associativeTableName].primary
-        ).id;
-        if (newPrimary != this.initialPrimary) {
+        );
+        const newPrimaryID = newPrimary ? newPrimary.id : null;
+        if (newPrimaryID != this.initialPrimary) {
           equal = false;
         }
 
