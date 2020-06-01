@@ -203,6 +203,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import AutocompleteDetail from "@/components/MovieDetails/Form/AutocompleteDetail";
+import EventBus from "@/assets/js/eventBus.js";
 
 library.add(faSpinner);
 library.add(faEdit);
@@ -301,6 +302,8 @@ export default {
         more: movie
       };
     });
+
+    EventBus.$on('updatedMovie', this.updatedMovie);
   },
   computed: {
     filteredMovies() {
@@ -347,8 +350,8 @@ export default {
 
       let updatedMovies = this.movies.map(m => {
         if (m.more.id === updated.id) {
-          m.revenue = beautifyCashValue(updated.revenue);
-          m.releaseDate = updated.release_date;
+          m.revenue = beautifyCashValue(fullMovie.data.revenue);
+          m.releaseDate = fullMovie.data.release_date;
           m.more = fullMovie.data;
           m.missingData = calculateMissingData(fullMovie.data);
         }

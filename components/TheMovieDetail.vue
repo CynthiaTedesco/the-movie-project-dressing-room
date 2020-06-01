@@ -9,6 +9,7 @@
           <div class="col-12 header">
             <nav class="navbar navbar-expand-md">
               <h2>#{{movie.position}} {{movie.title}}</h2>
+              <small>({{movie.more.release_date.split('-')[0]}})</small>
               <font-awesome-icon class="close" :icon="['fas', 'times']" @click="close" />
             </nav>
           </div>
@@ -65,41 +66,35 @@
 </template>
 
 <script>
-import Vue from 'vue';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import OtherDetails from '@/components/MovieDetails/OtherDetails';
-import ReleaseDetail from '@/components/MovieDetails/ReleaseDetail';
-import ProductionDetail from '@/components/MovieDetails/ProductionDetail';
-import ScriptDetail from '@/components/MovieDetails/ScriptDetail';
-import StoryDetail from '@/components/MovieDetails/StoryDetail';
-import InputDetail from '@/components/MovieDetails/Form/InputDetail';
+import Vue from "vue";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import ReleaseDetail from "@/components/MovieDetails/ReleaseDetail";
+import ProductionDetail from "@/components/MovieDetails/ProductionDetail";
+import StoryDetail from "@/components/MovieDetails/StoryDetail";
+import InputDetail from "@/components/MovieDetails/Form/InputDetail";
 
-library.add(faTimes)
-Vue.component('font-awesome-icon', FontAwesomeIcon)
+library.add(faTimes);
+Vue.component("font-awesome-icon", FontAwesomeIcon);
 
 export default {
   components: {
-    OtherDetails,
     ReleaseDetail,
     ProductionDetail,
-    ScriptDetail,
     StoryDetail,
     InputDetail
   },
-  data () {
+  data() {
     return {
       fields: [
-        { title: 'Story', component: 'StoryDetail' },
-        { title: 'Script', component: 'ScriptDetail' },
-        { title: 'Production', component: 'ProductionDetail' },
-        { title: 'Release', component: 'ReleaseDetail' },
-        { title: 'Other Data', component: 'OtherDetails' }
+        { title: "Story", component: "StoryDetail" },
+        { title: "Production", component: "ProductionDetail" },
+        { title: "Release", component: "ReleaseDetail" }
       ],
       changes: {},
       showSave: false
-    }
+    };
   },
   props: {
     show: {
@@ -108,32 +103,46 @@ export default {
     },
     movie: {
       type: Object,
-      default: () => { }
+      default: () => {}
     }
   },
   computed: {
-    missingStory () { return this.movie.missingData.find(md => md.menu === 'Story') },
-    missingScript () { return this.movie.missingData.find(md => md.menu === 'Script') },
-    missingProduction () { return this.movie.missingData.find(md => md.menu === 'Production') },
-    missingRelease () { return this.movie.missingData.find(md => md.menu === 'Release') }
+    missingStory() {
+      return this.movie.missingData.find(md => md.menu === "Story");
+    },
+    missingProduction() {
+      return this.movie.missingData.find(md => md.menu === "Production");
+    },
+    missingRelease() {
+      return this.movie.missingData.find(md => md.menu === "Release");
+    }
   },
   methods: {
-    cardHeaderClasses (card) {
+    cardHeaderClasses(card) {
       switch (card) {
-        case 'Story': { return this.missingStory ? 'missing' : '' }
-        case 'Script': { return this.missingScript ? 'missing' : ' ' }
-        case 'Production': { return this.missingProduction ? 'missing' : ' ' }
-        case 'Release': { return this.missingRelease ? 'missing' : ' ' }
-        default: return ''
+        case "Story": {
+          return this.missingStory ? "missing" : "";
+        }
+        case "Production": {
+          return this.missingProduction ? "missing" : " ";
+        }
+        case "Release": {
+          return this.missingRelease ? "missing" : " ";
+        }
+        default:
+          return "";
       }
     },
-    onChange ({ field, value, reset, subfield, list }) {
+    onChange({ field, value, reset, subfield, list }) {
       let sameValueAsInitial = false;
       if (value) {
-        const initialValue = !subfield ?
-          this.movie.more[field] :
-          (this.movie.more[field] ? this.movie.more[field][subfield] : null);
-        sameValueAsInitial = JSON.stringify(initialValue) === JSON.stringify(value);
+        const initialValue = !subfield
+          ? this.movie.more[field]
+          : this.movie.more[field]
+          ? this.movie.more[field][subfield]
+          : null;
+        sameValueAsInitial =
+          JSON.stringify(initialValue) === JSON.stringify(value);
       } else if (list) {
         if (list.length !== this.movie.more[field].length) {
           sameValueAsInitial = false; //we added or deleted something
@@ -146,12 +155,16 @@ export default {
             const relationEquality =
               item[subfield].primary === list[index][subfield].primary &&
               item[subfield].main === list[index][subfield].main &&
-              item[subfield].character_name === list[index][subfield].character_name &&
-              item[subfield].type === list[index][subfield].type
+              item[subfield].character_name ===
+                list[index][subfield].character_name &&
+              item[subfield].type === list[index][subfield].type;
 
-            return plainEquality && relationEquality
+            return plainEquality && relationEquality;
           });
-          sameValueAsInitial = equality.reduce((curr, next) => curr && next, true);
+          sameValueAsInitial = equality.reduce(
+            (curr, next) => curr && next,
+            true
+          );
         }
       }
 
@@ -165,7 +178,7 @@ export default {
         }
         let toPush;
         if (value) {
-          if(subfield){
+          if (subfield) {
             toPush = {};
             toPush[subfield] = value;
           } else {
@@ -181,18 +194,18 @@ export default {
 
       this.showSave = Object.keys(this.changes).length > 0;
     },
-    close () {
+    close() {
       this.changes = {};
       this.showSave = false;
-      this.$emit('close');
+      this.$emit("close");
     },
-    save () {
+    save() {
       let revenueHasChanged = false;
-      console.log('saving', this.movie.title);
+      console.log("saving", this.movie.title);
 
       //prepare changes
       Object.keys(this.changes).forEach(field => {
-        if (field === 'revenue') {
+        if (field === "revenue") {
           revenueHasChanged = true;
         }
 
@@ -203,21 +216,26 @@ export default {
         }
       });
 
-      this.$store.dispatch('movies/updateMovie', {
-        id: this.movie.more.id,
-        updates: this.changes
-      }).then(updatedMovie => {
-        this.$parent.updatedMovie(updatedMovie, revenueHasChanged);
-        this.$toast.success(`${this.movie.title} has been succesfully updated!`);
-      })
+      this.$store
+        .dispatch("movies/updateMovie", {
+          id: this.movie.more.id,
+          updates: this.changes
+        })
+        .then(updatedMovie => {
+          this.$parent.updatedMovie(updatedMovie, revenueHasChanged);
+          this.$toast.success(
+            `${this.movie.title} has been succesfully updated!`
+          );
+        });
 
       this.close();
     }
-  }}
+  }
+};
 </script>
 
 <style lang="scss" scoped>
-@import '~/assets/styles/common.scss';
+@import "~/assets/styles/common.scss";
 
 .header {
   position: fixed;

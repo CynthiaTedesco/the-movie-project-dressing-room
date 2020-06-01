@@ -39,6 +39,7 @@
     <input-detail label="Length" field="length" @change="onChange" :initial-value="length" />
     <div class="subtitles">
       <input-detail
+       v-if="!calculatedWordCount"
         label="Word count"
         field="word_count"
         @change="onChange"
@@ -59,6 +60,7 @@ import PeopleTable from "@/components/MovieDetails/Form/PeopleTable";
 import InputDetail from "@/components/MovieDetails/Form/InputDetail";
 import AssocTable from "@/components/MovieDetails/Form/AssocTable";
 import AutocompleteDetail from "@/components/MovieDetails/Form/AutocompleteDetail";
+import EventBus from '@/assets/js/eventBus.js';
 
 export default {
   name: "productionDetail",
@@ -89,6 +91,8 @@ export default {
     },
     onChangedFile(event) {
       if (event.srcElement.value !== "") {
+        this.calculatedWordCount = false;
+
         let formData = new FormData();
         formData.append("subs", this.$refs.file.files[0]);
         formData.append("movieId", this.id);
@@ -103,6 +107,7 @@ export default {
           .post("/uploadSubs", formData, contentType)
           .then(response => {
             this.calculatedWordCount = response.data.updated.word_count;
+            EventBus.$emit('updatedMovie', response.data.updated);
           })
           .catch(error => {
             console.log("error", error);
