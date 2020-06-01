@@ -2,7 +2,7 @@
   <div class="home">
     <div class="bulk">
       <div class="bulk-title">Bulk functions</div>
-      <!-- <div class="bulk-functions">
+      <div class="bulk-functions">
         <small>Bulk functions will iterate and process each of the movies. Be aware that this procedure may take several minutes.</small>
         <br />
         <br />
@@ -14,7 +14,7 @@
         <div class="mt-1">
           <b-button @click="updateAll">Autoupdate all movies</b-button>
         </div>
-      </div>-->
+      </div>
       <b-modal ref="bulkModal" hide-footer no-close-on-backdrop no-close-on-esc hide-header>
         <div class="d-block text-center">
           <div class="bulk-modal-content">
@@ -584,7 +584,8 @@ export default {
     background: rgba(255, 0, 0, 0.15);
   }
   /deep/ tr.gray-bgr {
-    background: #f1f1f1;
+    background: silver;
+    font-size: 0.8em;
     font-style: italic;
   }
   .more-column {

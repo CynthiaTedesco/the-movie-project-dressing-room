@@ -35,18 +35,12 @@
           :label="false"
           field="country"
           :initial-value="row.item.country"
-          @change="countryChanged(row.item.id, row.item)"
+          @change="(e) => countryChanged(e, row.item)"
           :hide-reset="true"
           dropdown-url="production_countries"
         />
         <template>{{row.item.country ? row.item.country: ''}}</template>
 
-        <input-detail
-          :hideLabel="true"
-          field="country"
-          @change="countryChanged(row.item.id, row.item)"
-          :initial-value="row.item.country"
-        />
       </template>
       <template v-slot:cell(id)="row">
         <font-awesome-icon class="trash" :icon="['fas', 'trash']" @click="deleteItem(row.item)" />
@@ -69,7 +63,7 @@ library.add(faUndo);
 Vue.component("font-awesome-icon", FontAwesomeIcon);
 
 export default {
-  components:{
+  components: {
     InputDetail,
     AutocompleteDetail
   },
@@ -138,6 +132,7 @@ export default {
       this.items = this.items.map((it, index) => {
         if (index === assocIndex) {
           it.name = dropdownItem.name;
+          it.country = dropdownItem.country;
           it.id = dropdownItem.id;
         }
         return it;
@@ -181,8 +176,16 @@ export default {
         reset: this.asInitial()
       });
     },
-    countryChanged(newCountry, item) {
-      this.showReset = item.country != newCountry;
+    countryChanged({ value }, item) {
+      const newCountry = value ? value.name : null;
+      this.showReset = (event.value != item.country) != newCountry;
+
+      this.items = this.items.map(it => {
+        if (it.id === item.id) {
+          it.country = newCountry;
+        }
+        return it;
+      });
       this.$emit("change", {
         field: this.field,
         subfield: this.associativeTableName,
@@ -228,6 +231,17 @@ export default {
           .join("");
         if (newIds != oldIds) {
           equal = false;
+        } else {
+          const equality = this.items.map(it => {
+            const initialIt = this.initialItems.find(iit => iit.id === it.id);
+            if (initialIt) {
+              return (
+                it.name === initialIt.name && it.country === initialIt.country
+              );
+            }
+            return false;
+          });
+          equal = equality.reduce((curr, next) => curr && next, true);
         }
       }
 

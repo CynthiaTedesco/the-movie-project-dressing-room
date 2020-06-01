@@ -153,7 +153,8 @@ export default {
             const plainEquality =
               item.name === list[index].name &&
               item.gender === list[index].gender &&
-              item.date_of_birth === list[index].date_of_birth;
+              item.date_of_birth === list[index].date_of_birth &&
+              item.country === list[index].country;
             const relationEquality =
               item[subfield].primary === list[index][subfield].primary &&
               item[subfield].main === list[index][subfield].main &&

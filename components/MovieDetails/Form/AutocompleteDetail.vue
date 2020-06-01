@@ -115,7 +115,7 @@ export default {
 <style lang="scss" scoped>
 .custom-dropdown {
   margin-right: 50px;
-  min-width: 70px;
+  min-width: 100px;
 }
 /deep/ .vs__dropdown-toggle {
   height: 35px;
