@@ -53,7 +53,7 @@
 
       <template v-slot:row-details="row">
         <div class="spotted-details">
-          <input-detail
+          <!-- <input-detail
             v-if="associativeTableName==='movies_characters'"
             label="Character name"
             field="character_name"
@@ -67,7 +67,7 @@
             url="character_types"
             @change="characterTypeChanged"
             :initial-value="row.item"
-          />
+          /> -->
           <dropdown-detail
             label="Gender"
             field="gender"

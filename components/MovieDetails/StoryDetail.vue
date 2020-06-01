@@ -52,14 +52,6 @@
         dropdown-url="languages"
       ></AssocTable>
     </div>
-    <input-detail
-      :textarea="true"
-      label="Plot"
-      field="plot_line"
-      @change="onChange"
-      :initial-value="plot_line"
-      :rows="2"
-    />
   </div>
 </template>
 
@@ -90,7 +82,6 @@ export default {
     universe: Object,
     serie: Object,
     languages: Array,
-    plot_line: String,
     release_date: String
   },
   methods: {

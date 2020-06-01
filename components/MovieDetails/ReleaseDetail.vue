@@ -35,16 +35,6 @@
       @change="onChange"
       :initial-value="release_date"
     />
-    <!-- <div class="producers">
-      <label for="producers">Producers:</label>
-      <AssocTable
-        :initial-items="producers"
-        @change="onChange"
-        field="producers"
-        associative-table-name="movies_producers"
-        dropdown-url="producers"
-      ></AssocTable>
-    </div> -->
     <div class="restrictions">
       <label for="restrictions">Restrictions:</label>
       <AssocTable
@@ -55,6 +45,13 @@
         dropdown-url="restrictions"
       ></AssocTable>
     </div>
+    <autocomplete-detail
+      label="Distribution Company"
+      field="distribution_company"
+      :initial-value="distribution_company"
+      @change="onChange"
+      dropdown-url="distribution_companies"
+    />
   </div>
 </template>
 
@@ -63,6 +60,7 @@ import InputDetail from '@/components/MovieDetails/Form/InputDetail';
 import DateDetail from '@/components/MovieDetails/Form/DateDetail';
 import DropdownDetail from '@/components/MovieDetails/Form/DropdownDetail';
 import AssocTable from '@/components/MovieDetails/Form/AssocTable';
+import AutocompleteDetail from '@/components/MovieDetails/Form/AutocompleteDetail';
 
 export default {
   name: 'releaseDetail',
@@ -70,6 +68,7 @@ export default {
     InputDetail,
     DateDetail,
     DropdownDetail,
+    AutocompleteDetail,
     AssocTable
   },
   data () {
@@ -81,6 +80,7 @@ export default {
     id: Number,
     release_date: String,
     producers: Array,
+    distribution_company: Object,
     restrictions: Array,
     poster: Object
   },

@@ -2,7 +2,7 @@
   <div class="home">
     <div class="bulk">
       <div class="bulk-title">Bulk functions</div>
-      <div class="bulk-functions">
+      <!-- <div class="bulk-functions">
         <small>Bulk functions will iterate and process each of the movies. Be aware that this procedure may take several minutes.</small>
         <br />
         <br />
@@ -14,7 +14,7 @@
         <div class="mt-1">
           <b-button @click="updateAll">Autoupdate all movies</b-button>
         </div>
-      </div>
+      </div>-->
       <b-modal ref="bulkModal" hide-footer no-close-on-backdrop no-close-on-esc hide-header>
         <div class="d-block text-center">
           <div class="bulk-modal-content">
@@ -303,7 +303,7 @@ export default {
       };
     });
 
-    EventBus.$on('updatedMovie', this.updatedMovie);
+    EventBus.$on("updatedMovie", this.updatedMovie);
   },
   computed: {
     filteredMovies() {
@@ -347,7 +347,6 @@ export default {
     },
     async updatedMovie(updated, sort) {
       const fullMovie = await this.$axios.get(`movies/${updated.id}`);
-
       let updatedMovies = this.movies.map(m => {
         if (m.more.id === updated.id) {
           m.revenue = beautifyCashValue(fullMovie.data.revenue);
@@ -371,7 +370,8 @@ export default {
       const fn = () => {
         return this.$store.dispatch("movies/autoUpdate", movie.more.imdb_id);
       };
-      this.bulkActionFn("Movie update is", null, fn).then(() => {
+      this.bulkActionFn("Movie update is", null, fn).then(async ({ data }) => {
+        await this.updatedMovie(movie.more);
         // this.movies = this.movies.filter(fm => fm.more.id !== movie.more.id);
         // if (movie.position) {
         this.updateMoviePositions();
@@ -414,11 +414,11 @@ export default {
         classes.push("missing-data");
       }
 
-      if(item.position > 50){
+      if (item.position > 50) {
         classes.push("gray-bgr");
       }
 
-      return classes.join(" ")
+      return classes.join(" ");
     },
     updateValidFilter(filter) {
       if (filter) {
@@ -448,6 +448,7 @@ export default {
               ? result.data.data || result.data.message
               : "Success"
           );
+          return result;
         })
         .catch(err => {
           this.bulkAction = "";

@@ -8,8 +8,10 @@
         <div class="row justify-content-md-center no-gutters sidenav">
           <div class="col-12 header">
             <nav class="navbar navbar-expand-md">
-              <h2>#{{movie.position}} {{movie.title}}</h2>
-              <small>({{movie.more.release_date.split('-')[0]}})</small>
+              <h2>
+                #{{movie.position}} {{movie.title}}
+                <small>({{movie.more.release_date.split('-')[0]}})</small>
+              </h2>
               <font-awesome-icon class="close" :icon="['fas', 'times']" @click="close" />
             </nav>
           </div>
