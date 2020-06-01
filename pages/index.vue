@@ -41,6 +41,10 @@
           <b-form-checkbox @change="updateColumns('serie')" value="valid">Serie</b-form-checkbox>
           <b-form-checkbox @change="updateColumns('origin')" value="valid">Origin</b-form-checkbox>
           <b-form-checkbox @change="updateColumns('language')" value="valid">Language</b-form-checkbox>
+          <b-form-checkbox
+            @change="updateColumns('distribution_company')"
+            value="valid"
+          >Distribution company</b-form-checkbox>
         </div>
       </b-form-group>
       <b-form-group
@@ -106,6 +110,18 @@
         />
         <template>{{row.item.more.serie ? row.item.more.serie.name : ''}}</template>
       </template>
+      <template v-slot:cell(distribution_company)="row">
+        <autocomplete-detail
+          v-if="!row.item.more.distribution_company"
+          :label="false"
+          field="distribution_company"
+          :initial-value="row.item.more.distribution_company"
+          @change="onChange($event, row.item)"
+          :hide-reset="true"
+          dropdown-url="distribution_companies"
+        />
+        <template>{{row.item.more.distribution_company ? row.item.more.distribution_company.name : ''}}</template>
+      </template>
       <template v-slot:cell(language)="row">
         <autocomplete-detail
           v-if="!row.item.more.languages.find(a=>a.movies_languages.primary)"
@@ -169,61 +185,112 @@
 </template>
 
 <script>
-import { beautifyCashValue, calculateMissingData } from '@/assets/js/helpers.js'
-import TheMovieDetail from '@/components/TheMovieDetail';
-import Vue from 'vue';
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faEdit, faEye, faExclamationCircle, faTrash, faSpinner, faFunnelDollar, faSync } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import AutocompleteDetail from '@/components/MovieDetails/Form/AutocompleteDetail'
+import {
+  beautifyCashValue,
+  calculateMissingData
+} from "@/assets/js/helpers.js";
+import TheMovieDetail from "@/components/TheMovieDetail";
+import Vue from "vue";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import {
+  faEdit,
+  faEye,
+  faExclamationCircle,
+  faTrash,
+  faSpinner,
+  faFunnelDollar,
+  faSync
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import AutocompleteDetail from "@/components/MovieDetails/Form/AutocompleteDetail";
 
-library.add(faSpinner)
-library.add(faEdit)
-library.add(faEye)
-library.add(faTrash)
-library.add(faSync)
-library.add(faExclamationCircle)
+library.add(faSpinner);
+library.add(faEdit);
+library.add(faEye);
+library.add(faTrash);
+library.add(faSync);
+library.add(faExclamationCircle);
 
-Vue.component('font-awesome-icon', FontAwesomeIcon)
+Vue.component("font-awesome-icon", FontAwesomeIcon);
 
 export default {
   components: { TheMovieDetail, AutocompleteDetail },
-  data () {
+  data() {
     return {
       showRowFilters: false,
       showColumnFilters: false,
       fields: [
-        { key: 'position', sortable: true, label: '#', show: true },
-        { key: 'title', sortable: true, show: true },
-        { key: 'releaseDate', sortable: true, label: 'Year', show: true },
-        { key: 'revenue', sortable: true, show: true },
-        {          key: 'universe', sortable: true, show: false,
+        { key: "position", sortable: true, label: "#", show: true },
+        { key: "title", sortable: true, show: true },
+        { key: "releaseDate", sortable: true, label: "Year", show: true },
+        { key: "revenue", sortable: true, show: true },
+        {
+          key: "universe",
+          sortable: true,
+          show: false,
           sortByFormatted: true,
-          formatter: (value, key, item) => item.more.universe ? item.more.universe.name : ''        },
-        {          key: 'cinematography', sortable: true, show: false,
+          formatter: (value, key, item) =>
+            item.more.universe ? item.more.universe.name : ""
+        },
+        {
+          key: "cinematography",
+          sortable: true,
+          show: false,
           sortByFormatted: true,
-          formatter: (value, key, item) => item.more.cinematography ? item.more.cinematography.name : ''        },
-        {          key: 'serie', sortable: true, show: false, sortByFormatted: true,
-          formatter: (value, key, item) => item.more.serie ? item.more.serie.name : ''        },
-        {          key: 'origin', sortable: true, show: false, sortByFormatted: true,
-          formatter: (value, key, item) => item.more.story_origin ? item.more.story_origin.name : ''        },
-        {          key: 'language', sortable: true, show: false, sortByFormatted: true,
-          formatter: (value, key, item) => item.more.languages.find(a => a.primary) ? item.more.languages.find(a => a.primary).name : ''        },
-        { key: 'valid', show: true },
-        { key: 'more', show: true },
+          formatter: (value, key, item) =>
+            item.more.cinematography ? item.more.cinematography.name : ""
+        },
+        {
+          key: "serie",
+          sortable: true,
+          show: false,
+          sortByFormatted: true,
+          formatter: (value, key, item) =>
+            item.more.serie ? item.more.serie.name : ""
+        },
+        {
+          key: "distribution_company",
+          sortable: true,
+          show: false,
+          sortByFormatted: true,
+          formatter: (value, key, item) =>
+            item.more.distribution_company
+              ? item.more.distribution_company.name
+              : ""
+        },
+        {
+          key: "origin",
+          sortable: true,
+          show: false,
+          sortByFormatted: true,
+          formatter: (value, key, item) =>
+            item.more.story_origin ? item.more.story_origin.name : ""
+        },
+        {
+          key: "language",
+          sortable: true,
+          show: false,
+          sortByFormatted: true,
+          formatter: (value, key, item) =>
+            item.more.languages.find(a => a.primary)
+              ? item.more.languages.find(a => a.primary).name
+              : ""
+        },
+        { key: "valid", show: true },
+        { key: "more", show: true }
       ],
       displayDetail: false,
       currentMovie: null,
       movies: [],
       filters: [],
-      bulkAction: '',
+      bulkAction: "",
       showSave: false,
       changes: {}
     };
   },
-  mounted () {
+  mounted() {
     let position = 1;
-    this.movies = this.$store.getters['movies/sortedList']().map(movie => {
+    this.movies = this.$store.getters["movies/sortedList"]().map(movie => {
       return {
         position: movie.valid ? position++ : null,
         title: movie.title,
@@ -232,16 +299,16 @@ export default {
         valid: movie.valid,
         missingData: calculateMissingData(movie),
         more: movie
-      }
+      };
     });
   },
   computed: {
-    filteredMovies () {
+    filteredMovies() {
       if (this.filters.length) {
         return this.movies.filter(movie => {
           return this.filters.reduce((total, current) => {
             switch (current) {
-              case 'valid':
+              case "valid":
                 return total && !movie[current];
               default:
                 return total && movie[current] && movie[current].length;
@@ -254,15 +321,15 @@ export default {
     }
   },
   methods: {
-    updateColumns (columnName) {
+    updateColumns(columnName) {
       this.fields = this.fields.map(field => {
         if (field.key === columnName) {
-          field.show = !field.show
+          field.show = !field.show;
         }
         return field;
-      })
+      });
     },
-    updateMoviePositions (updated, toggle) {
+    updateMoviePositions(updated, toggle) {
       let position = 1;
 
       this.movies = this.movies.map(m => {
@@ -275,7 +342,7 @@ export default {
         return m;
       });
     },
-    async updatedMovie (updated, sort) {
+    async updatedMovie(updated, sort) {
       const fullMovie = await this.$axios.get(`movies/${updated.id}`);
 
       let updatedMovies = this.movies.map(m => {
@@ -289,100 +356,121 @@ export default {
       });
 
       if (sort) {
-        updatedMovies = updatedMovies
-          .sort((a, b) => -parseInt(a.revenue) + parseInt(b.revenue))
+        updatedMovies = updatedMovies.sort(
+          (a, b) => -parseInt(a.revenue) + parseInt(b.revenue)
+        );
         this.movies = updatedMovies;
         this.updateMoviePositions(updated.id);
       }
       this.movies = updatedMovies;
     },
-    refreshMovie (movie) {
+    refreshMovie(movie) {
       const fn = () => {
-        return this.$store.dispatch('movies/autoUpdate', movie.more.imdb_id)
-      }
-      this.bulkActionFn('Movie update is', null, fn)
-        .then(() => {
-          // this.movies = this.movies.filter(fm => fm.more.id !== movie.more.id);
-          // if (movie.position) {
-          this.updateMoviePositions();
-          // }
-          // this.$toast.success(`Auto update successfuly done`);
-        })
+        return this.$store.dispatch("movies/autoUpdate", movie.more.imdb_id);
+      };
+      this.bulkActionFn("Movie update is", null, fn).then(() => {
+        // this.movies = this.movies.filter(fm => fm.more.id !== movie.more.id);
+        // if (movie.position) {
+        this.updateMoviePositions();
+        // }
+        // this.$toast.success(`Auto update successfuly done`);
+      });
     },
-    deleteMovie (movie) {
-      this.$store.dispatch('movies/deleteMovie', movie.more.id).then(() => {
+    deleteMovie(movie) {
+      this.$store.dispatch("movies/deleteMovie", movie.more.id).then(() => {
         this.movies = this.movies.filter(fm => fm.more.id !== movie.more.id);
         if (movie.position) {
           this.updateMoviePositions();
         }
         this.$toast.success(`${movie.more.title} successfuly removed`);
-      })
+      });
     },
-    displayDetailSection (item) {
+    displayDetailSection(item) {
       this.displayDetail = !this.displayDetail;
       this.currentMovie = this.displayDetail ? item : null;
     },
-    toggleValidity (id) {
-      this.$axios.post(`/movies/${id}/toggleValidity`)
+    toggleValidity(id) {
+      this.$axios
+        .post(`/movies/${id}/toggleValidity`)
         .then(() => {
           this.updateMoviePositions(id, true);
         })
-        .catch(err => { console.log("something failed while toggling validity", err) });
+        .catch(err => {
+          console.log("something failed while toggling validity", err);
+        });
     },
-    rowClass (item, type) {
-      return item.missingData.length ? 'missing-data' : '';
+    rowClass(item, type) {
+      const valid = item.valid && item.position <= 50;
+      const hasMissingData = item.missingData.length && valid;
+      if (hasMissingData) {
+        console.log("--------------------------------------");
+        console.log("MISSING DATA", `#${item.position} ${item.title}`);
+        console.log(item.missingData);
+        return "missing-data";
+      } else {
+        return "";
+      }
     },
-    updateValidFilter (filter, ) {
+    updateValidFilter(filter) {
       if (filter) {
         this.filters.push(filter);
       } else {
-        this.filters.splice(this.filters.indexOf('valid'), 1);
+        this.filters.splice(this.filters.indexOf("valid"), 1);
       }
     },
-    updateMissingFilter (filter) {
+    updateMissingFilter(filter) {
       if (filter) {
         this.filters.push(filter);
       } else {
-        this.filters.splice(this.filters.indexOf('missingData'), 1);
+        this.filters.splice(this.filters.indexOf("missingData"), 1);
       }
     },
-    bulkActionFn (actionText, postUrl, customFn) {
+    bulkActionFn(actionText, postUrl, customFn) {
       this.bulkAction = actionText;
-      this.$refs['bulkModal'].show();
+      this.$refs["bulkModal"].show();
 
       const fn = customFn ? customFn() : this.$axios.post(postUrl);
-      return fn.then(result => {
-        this.bulkAction = '';
-        this.$refs['bulkModal'].hide();
-        this.$toast.success(result && result.data ? (result.data.data || result.data.message) : 'Success');
-      }).catch(err => {
-        this.bulkAction = '';
-        this.$refs['bulkModal'].hide();
-        this.$toast.error(err);
-      });
+      return fn
+        .then(result => {
+          this.bulkAction = "";
+          this.$refs["bulkModal"].hide();
+          this.$toast.success(
+            result && result.data
+              ? result.data.data || result.data.message
+              : "Success"
+          );
+        })
+        .catch(err => {
+          this.bulkAction = "";
+          this.$refs["bulkModal"].hide();
+          this.$toast.error(err);
+        });
     },
-    updateMoviesInSitu () {
-      this.bulkActionFn('Movies update is', null, this.save);
+    updateMoviesInSitu() {
+      this.bulkActionFn("Movies update is", null, this.save);
     },
-    updateRevenues () {
-      this.bulkActionFn('Revenues are', 'movies/updateRevenues');
+    updateRevenues() {
+      this.bulkActionFn("Revenues are", "movies/updateRevenues");
     },
-    updateAll(){
-      this.bulkActionFn('Massive autoupdate is', 'movies/autoUpdateAll');
+    updateAll() {
+      this.bulkActionFn("Massive autoupdate is", "movies/autoUpdateAll");
     },
-    updatePeopleDetails () {
-      this.bulkActionFn('People details are', 'people/updateDetails');
+    updatePeopleDetails() {
+      this.bulkActionFn("People details are", "people/updateDetails");
     },
-    onChange (params, movie) {
+    onChange(params, movie) {
       const { field, value, reset, subfield, list } = params;
       let sameValueAsInitial = false;
-      const initialValue = !subfield ?
-        movie.more[field] :
-        (movie.more[field] ? movie.more[field][subfield] : null);
+      const initialValue = !subfield
+        ? movie.more[field]
+        : movie.more[field]
+        ? movie.more[field][subfield]
+        : null;
       if (value) {
-        sameValueAsInitial = JSON.stringify(initialValue) === JSON.stringify(value);
+        sameValueAsInitial =
+          JSON.stringify(initialValue) === JSON.stringify(value);
       } else {
-        sameValueAsInitial = !initialValue
+        sameValueAsInitial = !initialValue;
       }
 
       if (sameValueAsInitial && this.changes[movie.more.id]) {
@@ -394,7 +482,7 @@ export default {
         }
       } else {
         if (!this.changes[movie.more.id]) {
-          this.changes[movie.more.id] = {}
+          this.changes[movie.more.id] = {};
           this.changes[movie.more.id][field] = [];
         } else if (!this.changes[movie.more.id][field]) {
           this.changes[movie.more.id][field] = [];
@@ -418,8 +506,8 @@ export default {
 
       this.showSave = Object.keys(this.changes).length > 0;
     },
-    save () {
-      console.log('saving');
+    save() {
+      console.log("saving");
 
       //prepare changes
       Object.entries(this.changes).forEach(entry => {
@@ -429,17 +517,19 @@ export default {
         Object.keys(movieChanges).forEach(key => {
           //we only keep the last change
           this.changes[movieId][key] = this.changes[movieId][key].pop();
-        })
+        });
       });
 
-      const updatePromise = this.$store.dispatch('movies/bulkUpdate', {
-        updates: this.changes
-      }).then(updatedMovies => {
-        updatedMovies.map(um => {
-          this.updatedMovie(um);
+      const updatePromise = this.$store
+        .dispatch("movies/bulkUpdate", {
+          updates: this.changes
         })
-        this.$toast.success(`Succesfully updated!`);
-      })
+        .then(updatedMovies => {
+          updatedMovies.map(um => {
+            this.updatedMovie(um);
+          });
+          this.$toast.success(`Succesfully updated!`);
+        });
 
       //hide save button
       this.changes = {};

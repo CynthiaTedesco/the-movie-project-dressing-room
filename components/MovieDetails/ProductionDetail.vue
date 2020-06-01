@@ -80,7 +80,6 @@ export default {
     producers: Array,
     length: Number,
     cinematography: Object,
-    subtitles: String,
     word_count: Number,
     release_date: String
   },
