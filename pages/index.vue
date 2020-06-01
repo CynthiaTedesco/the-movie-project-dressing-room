@@ -400,16 +400,22 @@ export default {
         });
     },
     rowClass(item, type) {
+      let classes = [];
+
       const valid = item.valid && item.position <= 50;
       const hasMissingData = item.missingData.length && valid;
       if (hasMissingData) {
         console.log("--------------------------------------");
         console.log("MISSING DATA", `#${item.position} ${item.title}`);
         console.log(item.missingData);
-        return "missing-data";
-      } else {
-        return "";
+        classes.push("missing-data");
       }
+
+      if(item.position > 50){
+        classes.push("gray-bgr");
+      }
+
+      return classes.join(" ")
     },
     updateValidFilter(filter) {
       if (filter) {
@@ -572,6 +578,10 @@ export default {
   }
   /deep/ tr.missing-data {
     background: rgba(255, 0, 0, 0.15);
+  }
+  /deep/ tr.gray-bgr {
+    background: #f1f1f1;
+    font-style: italic;
   }
   .more-column {
     display: inline-flex;
