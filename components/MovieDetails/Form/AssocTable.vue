@@ -40,7 +40,6 @@
           dropdown-url="production_countries"
         />
         <template>{{row.item.country ? row.item.country: ''}}</template>
-
       </template>
       <template v-slot:cell(id)="row">
         <font-awesome-icon class="trash" :icon="['fas', 'trash']" @click="deleteItem(row.item)" />
@@ -210,14 +209,14 @@ export default {
     asInitial() {
       let equal = true;
       if (this.items.length != this.initialItems.length) {
-        equal = false;
+        return false;
       } else {
         const newPrimary = this.items.find(
           item => item[this.associativeTableName].primary
         );
         const newPrimaryID = newPrimary ? newPrimary.id : null;
         if (newPrimaryID != this.initialPrimary) {
-          equal = false;
+          return false;
         }
 
         //check if the elements are all the same
@@ -230,7 +229,7 @@ export default {
           .sort((a, b) => a - b)
           .join("");
         if (newIds != oldIds) {
-          equal = false;
+          return false;
         } else {
           const equality = this.items.map(it => {
             const initialIt = this.initialItems.find(iit => iit.id === it.id);
