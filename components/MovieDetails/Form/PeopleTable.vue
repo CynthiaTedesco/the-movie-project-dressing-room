@@ -36,13 +36,13 @@
           :checked="row.item.id === main"
           @change="mainChanged(row.item.id, row.item)"
         />
-        </template>
-        <template v-slot:cell(primary)="row">
+      </template>
+      <template v-slot:cell(primary)="row">
         <input
           class="main-checkbox"
           type="radio"
-          name="main"
-          id="main"
+          name="primary"
+          id="primary"
           :checked="row.item.id === main"
           @change="mainChanged(row.item.id, row.item)"
         />
@@ -67,7 +67,7 @@
             url="character_types"
             @change="characterTypeChanged"
             :initial-value="row.item"
-          /> -->
+          />-->
           <dropdown-detail
             label="Gender"
             field="gender"
@@ -146,10 +146,10 @@ export default {
     }
   },
   beforeMount() {
-    if(this.associativeTableName==='movies_characters'){
-      this.fields.push({ key: "main", label: "Lead" })
+    if (this.associativeTableName === "movies_characters") {
+      this.fields.push({ key: "main", label: "Lead" });
     } else {
-      this.fields.push({ key: "primary", label: "Primary" })
+      this.fields.push({ key: "primary", label: "Primary" });
     }
     this.fields.push({ key: "id", label: "" });
 
@@ -181,7 +181,9 @@ export default {
   computed: {
     initialMain() {
       let main = this.initialItems.find(
-        item => item[this.associativeTableName].main || item[this.associativeTableName].primary
+        item =>
+          item[this.associativeTableName].main ||
+          item[this.associativeTableName].primary
       );
       return main ? main.id : null;
     }
