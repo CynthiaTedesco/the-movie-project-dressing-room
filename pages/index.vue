@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <div class="bulk">
+    <!-- <div class="bulk">
       <div class="bulk-title">Bulk functions</div>
       <div class="bulk-functions">
         <small>Bulk functions will iterate and process each of the movies. Be aware that this procedure may take several minutes.</small>
@@ -15,15 +15,15 @@
           <b-button @click="updateAll">Autoupdate all movies</b-button>
         </div>
       </div>
-      <b-modal ref="bulkModal" hide-footer no-close-on-backdrop no-close-on-esc hide-header>
-        <div class="d-block text-center">
-          <div class="bulk-modal-content">
-            <span>{{`${bulkAction} being processed...`}}</span>
-            <font-awesome-icon icon="spinner" spin />
-          </div>
+    </div>-->
+    <b-modal ref="bulkModal" hide-footer no-close-on-backdrop no-close-on-esc hide-header>
+      <div class="d-block text-center">
+        <div class="bulk-modal-content">
+          <span>{{`${bulkAction} being processed...`}}</span>
+          <font-awesome-icon icon="spinner" spin />
         </div>
-      </b-modal>
-    </div>
+      </div>
+    </b-modal>
     <div v-if="showSave" class="save-btn" @click="updateMoviesInSitu">Save changes?</div>
     <b-col lg="12" class="filters">
       <b-button @click="showColumnFilters = !showColumnFilters">Filter columns</b-button>
@@ -171,12 +171,12 @@
             @click="deleteMovie(row.item)"
             title="delete"
           />
-          <font-awesome-icon
+          <!-- <font-awesome-icon
             class="refresh"
             :icon="['fas', 'sync']"
             @click="refreshMovie(row.item)"
             title="Autoupdate"
-          />
+          /> -->
         </div>
       </template>
     </b-table>
