@@ -171,12 +171,12 @@
             @click="deleteMovie(row.item)"
             title="delete"
           />
-          <!-- <font-awesome-icon
+          <font-awesome-icon
             class="refresh"
             :icon="['fas', 'sync']"
             @click="refreshMovie(row.item)"
             title="Autoupdate"
-          /> -->
+          />
         </div>
       </template>
     </b-table>
@@ -364,6 +364,7 @@ export default {
         this.movies = updatedMovies;
         this.updateMoviePositions(updated.id);
       }
+
       this.movies = updatedMovies;
     },
     refreshMovie(movie) {
@@ -443,15 +444,22 @@ export default {
         .then(result => {
           this.bulkAction = "";
           this.$refs["bulkModal"].hide();
-          this.$toast.success(
-            result && result.data
-              ? result.data.data || result.data.message
-              : "Success"
-          );
+          let toastText = 'Success';
+          if(result && result.data){
+            toastText = result.data.data || result.data.message;
+            if(result.data.results && result.data.results.added && result.data.results.added.length){
+              toastText = toastText + '<br> Added movies: ';
+              result.data.results.added.map(added=>{
+                toastText = toastText + `<br>- ${added.title}, revenue: ${beautifyCashValue(added.revenue)}`;
+              })
+            }
+          }
+
+          this.$toast.success(toastText);
           return result;
         })
         .catch(err => {
-          this.bulkAction = "";
+          this.bulkGRAction = "";
           this.$refs["bulkModal"].hide();
           this.$toast.error(err);
         });
