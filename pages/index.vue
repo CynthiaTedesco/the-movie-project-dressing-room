@@ -16,17 +16,27 @@
         </div>
       </div>
     </div>-->
-    <b-modal ref="bulkModal" hide-footer no-close-on-backdrop no-close-on-esc hide-header>
+    <b-modal
+      ref="bulkModal"
+      hide-footer
+      no-close-on-backdrop
+      no-close-on-esc
+      hide-header
+    >
       <div class="d-block text-center">
         <div class="bulk-modal-content">
-          <span>{{`${bulkAction} being processed...`}}</span>
+          <span>{{ `${bulkAction} being processed...` }}</span>
           <font-awesome-icon icon="spinner" spin />
         </div>
       </div>
     </b-modal>
-    <div v-if="showSave" class="save-btn" @click="updateMoviesInSitu">Save changes?</div>
+    <div v-if="showSave" class="save-btn" @click="updateMoviesInSitu">
+      Save changes?
+    </div>
     <b-col lg="12" class="filters">
-      <b-button @click="showColumnFilters = !showColumnFilters">Filter columns</b-button>
+      <b-button @click="showColumnFilters = !showColumnFilters"
+        >Filter columns</b-button
+      >
       <b-button @click="showRowFilters = !showRowFilters">Filter rows</b-button>
       <b-form-group
         label-cols-sm="3"
@@ -36,15 +46,28 @@
         v-if="showColumnFilters"
       >
         <div class="columns-checkbox mt-1">
-          <b-form-checkbox @change="updateColumns('universe')" value="valid">Universe</b-form-checkbox>
-          <b-form-checkbox @change="updateColumns('cinematography')" value="valid">Cinematography</b-form-checkbox>
-          <b-form-checkbox @change="updateColumns('serie')" value="valid">Serie</b-form-checkbox>
-          <b-form-checkbox @change="updateColumns('origin')" value="valid">Origin</b-form-checkbox>
-          <b-form-checkbox @change="updateColumns('language')" value="valid">Language</b-form-checkbox>
+          <b-form-checkbox @change="updateColumns('universe')" value="valid"
+            >Universe</b-form-checkbox
+          >
+          <b-form-checkbox
+            @change="updateColumns('cinematography')"
+            value="valid"
+            >Cinematography</b-form-checkbox
+          >
+          <b-form-checkbox @change="updateColumns('serie')" value="valid"
+            >Serie</b-form-checkbox
+          >
+          <b-form-checkbox @change="updateColumns('origin')" value="valid"
+            >Origin</b-form-checkbox
+          >
+          <b-form-checkbox @change="updateColumns('language')" value="valid"
+            >Language</b-form-checkbox
+          >
           <b-form-checkbox
             @change="updateColumns('distribution_company')"
             value="valid"
-          >Distribution company</b-form-checkbox>
+            >Distribution company</b-form-checkbox
+          >
         </div>
       </b-form-group>
       <b-form-group
@@ -56,23 +79,33 @@
         v-if="showRowFilters"
       >
         <b-form-checkbox-group class="mt-1">
-          <b-form-checkbox @change="updateValidFilter" value="valid">Only invalid</b-form-checkbox>
-          <b-form-checkbox @change="updateMissingFilter" value="missingData">Only with missing data</b-form-checkbox>
+          <b-form-checkbox @change="updateValidFilter" value="valid"
+            >Only invalid</b-form-checkbox
+          >
+          <b-form-checkbox @change="updateMissingFilter" value="missingData"
+            >Only with missing data</b-form-checkbox
+          >
         </b-form-checkbox-group>
       </b-form-group>
     </b-col>
     <b-table
       hover
-      :items="filteredMovies "
-      :fields="fields.filter(f=>f.show)"
+      :items="filteredMovies"
+      :fields="fields.filter((f) => f.show)"
       :tbody-tr-class="rowClass"
     >
       <template v-slot:cell(position)="row">
-        <span v-if="row.item.position" class="position">#{{row.item.position}}</span>
-        <font-awesome-icon v-else :icon="['fas', 'exclamation-circle']" title="Invalid movie" />
+        <span v-if="row.item.position" class="position"
+          >#{{ row.item.position }}</span
+        >
+        <font-awesome-icon
+          v-else
+          :icon="['fas', 'exclamation-circle']"
+          title="Invalid movie"
+        />
       </template>
       <template v-slot:cell(title)="row">
-        <span class="title">{{row.item.title}}</span>
+        <span class="title">{{ row.item.title }}</span>
       </template>
       <template v-slot:cell(universe)="row">
         <autocomplete-detail
@@ -84,7 +117,9 @@
           :hide-reset="true"
           dropdown-url="universes"
         />
-        <template>{{row.item.more.universe ? row.item.more.universe.name : ''}}</template>
+        <template>{{
+          row.item.more.universe ? row.item.more.universe.name : ""
+        }}</template>
       </template>
       <template v-slot:cell(cinematography)="row">
         <autocomplete-detail
@@ -96,7 +131,9 @@
           :hide-reset="true"
           dropdown-url="cinematographies"
         />
-        <template>{{row.item.more.cinematography ? row.item.more.cinematography.name : ''}}</template>
+        <template>{{
+          row.item.more.cinematography ? row.item.more.cinematography.name : ""
+        }}</template>
       </template>
       <template v-slot:cell(serie)="row">
         <autocomplete-detail
@@ -108,7 +145,9 @@
           :hide-reset="true"
           dropdown-url="series"
         />
-        <template>{{row.item.more.serie ? row.item.more.serie.name : ''}}</template>
+        <template>{{
+          row.item.more.serie ? row.item.more.serie.name : ""
+        }}</template>
       </template>
       <template v-slot:cell(distribution_company)="row">
         <autocomplete-detail
@@ -120,20 +159,33 @@
           :hide-reset="true"
           dropdown-url="distribution_companies"
         />
-        <template>{{row.item.more.distribution_company ? row.item.more.distribution_company.name : ''}}</template>
+        <template>{{
+          row.item.more.distribution_company
+            ? row.item.more.distribution_company.name
+            : ""
+        }}</template>
       </template>
       <template v-slot:cell(language)="row">
         <autocomplete-detail
-          v-if="!row.item.more.languages.find(a=>a.movies_languages.primary)"
+          v-if="
+            !row.item.more.languages.find((a) => a.movies_languages.primary)
+          "
           :label="false"
           field="languages"
           subfield="primary"
-          :initial-value="row.item.more.languages.find(a=>a.movies_languages.primary)"
+          :initial-value="
+            row.item.more.languages.find((a) => a.movies_languages.primary)
+          "
           @change="onChange($event, row.item)"
           :hide-reset="true"
           dropdown-url="languages"
         />
-        <template>{{row.item.more.languages.find(a=>a.movies_languages.primary) ? row.item.more.languages.find(a=>a.movies_languages.primary).name : ''}}</template>
+        <template>{{
+          row.item.more.languages.find((a) => a.movies_languages.primary)
+            ? row.item.more.languages.find((a) => a.movies_languages.primary)
+                .name
+            : ""
+        }}</template>
       </template>
       <template v-slot:cell(origin)="row">
         <autocomplete-detail
@@ -145,7 +197,9 @@
           :hide-reset="true"
           dropdown-url="origins"
         />
-        <template>{{row.item.more.story_origin ? row.item.more.story_origin.name : ''}}</template>
+        <template>{{
+          row.item.more.story_origin ? row.item.more.story_origin.name : ""
+        }}</template>
       </template>
       <template v-slot:cell(valid)="row">
         <input
@@ -157,7 +211,9 @@
           @change="toggleValidity(row.item.more.id)"
         />
       </template>
-      <template v-slot:cell(releaseDate)="row">{{(new Date(row.item.releaseDate)).getFullYear()}}</template>
+      <template v-slot:cell(releaseDate)="row">{{
+        new Date(row.item.releaseDate).getFullYear()
+      }}</template>
       <template v-slot:cell(more)="row">
         <div class="more-column">
           <font-awesome-icon
@@ -180,14 +236,18 @@
         </div>
       </template>
     </b-table>
-    <the-movie-detail :show="displayDetail" :movie="currentMovie" @close="displayDetail = false" />
+    <the-movie-detail
+      :show="displayDetail"
+      :movie="currentMovie"
+      @close="displayDetail = false"
+    />
   </div>
 </template>
 
 <script>
 import {
   beautifyCashValue,
-  calculateMissingData
+  calculateMissingData,
 } from "@/assets/js/helpers.js";
 import TheMovieDetail from "@/components/TheMovieDetail";
 import Vue from "vue";
@@ -199,7 +259,7 @@ import {
   faTrash,
   faSpinner,
   faFunnelDollar,
-  faSync
+  faSync,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import AutocompleteDetail from "@/components/MovieDetails/Form/AutocompleteDetail";
@@ -231,7 +291,7 @@ export default {
           show: false,
           sortByFormatted: true,
           formatter: (value, key, item) =>
-            item.more.universe ? item.more.universe.name : ""
+            item.more.universe ? item.more.universe.name : "",
         },
         {
           key: "cinematography",
@@ -239,7 +299,7 @@ export default {
           show: false,
           sortByFormatted: true,
           formatter: (value, key, item) =>
-            item.more.cinematography ? item.more.cinematography.name : ""
+            item.more.cinematography ? item.more.cinematography.name : "",
         },
         {
           key: "serie",
@@ -247,7 +307,7 @@ export default {
           show: false,
           sortByFormatted: true,
           formatter: (value, key, item) =>
-            item.more.serie ? item.more.serie.name : ""
+            item.more.serie ? item.more.serie.name : "",
         },
         {
           key: "distribution_company",
@@ -257,7 +317,7 @@ export default {
           formatter: (value, key, item) =>
             item.more.distribution_company
               ? item.more.distribution_company.name
-              : ""
+              : "",
         },
         {
           key: "origin",
@@ -265,7 +325,7 @@ export default {
           show: false,
           sortByFormatted: true,
           formatter: (value, key, item) =>
-            item.more.story_origin ? item.more.story_origin.name : ""
+            item.more.story_origin ? item.more.story_origin.name : "",
         },
         {
           key: "language",
@@ -273,12 +333,12 @@ export default {
           show: false,
           sortByFormatted: true,
           formatter: (value, key, item) =>
-            item.more.languages.find(a => a.primary)
-              ? item.more.languages.find(a => a.primary).name
-              : ""
+            item.more.languages.find((a) => a.primary)
+              ? item.more.languages.find((a) => a.primary).name
+              : "",
         },
         { key: "valid", show: true },
-        { key: "more", show: true }
+        { key: "more", show: true },
       ],
       displayDetail: false,
       currentMovie: null,
@@ -286,12 +346,12 @@ export default {
       filters: [],
       bulkAction: "",
       showSave: false,
-      changes: {}
+      changes: {},
     };
   },
   mounted() {
     let position = 1;
-    this.movies = this.$store.getters["movies/sortedList"]().map(movie => {
+    this.movies = this.$store.getters["movies/sortedList"]().map((movie) => {
       return {
         position: movie.valid ? position++ : null,
         title: movie.title,
@@ -299,7 +359,7 @@ export default {
         releaseDate: movie.release_date,
         valid: movie.valid,
         missingData: calculateMissingData(movie),
-        more: movie
+        more: movie,
       };
     });
 
@@ -308,7 +368,7 @@ export default {
   computed: {
     filteredMovies() {
       if (this.filters.length) {
-        return this.movies.filter(movie => {
+        return this.movies.filter((movie) => {
           return this.filters.reduce((total, current) => {
             switch (current) {
               case "valid":
@@ -321,11 +381,11 @@ export default {
       } else {
         return this.movies;
       }
-    }
+    },
   },
   methods: {
     updateColumns(columnName) {
-      this.fields = this.fields.map(field => {
+      this.fields = this.fields.map((field) => {
         if (field.key === columnName) {
           field.show = !field.show;
         }
@@ -335,7 +395,7 @@ export default {
     updateMoviePositions(updated, toggle) {
       let position = 1;
 
-      this.movies = this.movies.map(m => {
+      this.movies = this.movies.map((m) => {
         if (toggle) {
           if (m.more.id === updated) {
             m.valid = !m.valid;
@@ -347,7 +407,7 @@ export default {
     },
     async updatedMovie(updated, sort) {
       const fullMovie = await this.$axios.get(`movies/${updated.id}`);
-      let updatedMovies = this.movies.map(m => {
+      let updatedMovies = this.movies.map((m) => {
         if (m.more.id === updated.id) {
           m.revenue = beautifyCashValue(fullMovie.data.revenue);
           m.releaseDate = fullMovie.data.release_date;
@@ -382,7 +442,7 @@ export default {
     },
     deleteMovie(movie) {
       this.$store.dispatch("movies/deleteMovie", movie.more.id).then(() => {
-        this.movies = this.movies.filter(fm => fm.more.id !== movie.more.id);
+        this.movies = this.movies.filter((fm) => fm.more.id !== movie.more.id);
         if (movie.position) {
           this.updateMoviePositions();
         }
@@ -399,7 +459,7 @@ export default {
         .then(() => {
           this.updateMoviePositions(id, true);
         })
-        .catch(err => {
+        .catch((err) => {
           console.log("something failed while toggling validity", err);
         });
     },
@@ -441,24 +501,53 @@ export default {
 
       const fn = customFn ? customFn() : this.$axios.post(postUrl);
       return fn
-        .then(result => {
+        .then(async (result) => {
           this.bulkAction = "";
           this.$refs["bulkModal"].hide();
-          let toastText = 'Success';
-          if(result && result.data){
+          let toastText = "Success";
+          if (result && result.data) {
             toastText = result.data.data || result.data.message;
-            if(result.data.results && result.data.results.added && result.data.results.added.length){
-              toastText = toastText + '<br> Added movies: ';
-              result.data.results.added.map(added=>{
-                toastText = toastText + `<br>- ${added.title}, revenue: ${beautifyCashValue(added.revenue)}`;
-              })
+
+            if (
+              result.data.results &&
+              result.data.results.added &&
+              result.data.results.added.length
+            ) {
+              toastText = toastText + "<br> Added movies: ";
+              result.data.results.added.map((added) => {
+                toastText =
+                  toastText +
+                  `<br>- ${added.title}, revenue: ${beautifyCashValue(
+                    added.revenue
+                  )}`;
+              });
+            }
+
+            if (result.data.updated) {
+              const fullMovie = await this.$axios.get(
+                `movies/${result.data.updated.id}`
+              );
+              if (fullMovie) {
+                const somethingMissing = calculateMissingData(fullMovie.data);
+
+                if (somethingMissing && somethingMissing.length > 0) {
+                  // toastText = toastText + "<br/>";
+                  toastText = toastText + ". Still missing fields: ";
+                  toastText =
+                    toastText +
+                    somethingMissing.map(
+                      (sm) =>
+                        `<br/>- ${sm.menu}: ${sm.attr}. Cause: ${sm.cause}.`
+                    );
+                }
+              }
             }
           }
-
+          console.log(toastText);
           this.$toast.success(toastText);
           return result;
         })
-        .catch(err => {
+        .catch((err) => {
           this.bulkGRAction = "";
           this.$refs["bulkModal"].hide();
           this.$toast.error(err);
@@ -528,11 +617,11 @@ export default {
       console.log("saving");
 
       //prepare changes
-      Object.entries(this.changes).forEach(entry => {
+      Object.entries(this.changes).forEach((entry) => {
         const movieId = entry[0];
         const movieChanges = entry[1];
 
-        Object.keys(movieChanges).forEach(key => {
+        Object.keys(movieChanges).forEach((key) => {
           //we only keep the last change
           this.changes[movieId][key] = this.changes[movieId][key].pop();
         });
@@ -540,10 +629,10 @@ export default {
 
       const updatePromise = this.$store
         .dispatch("movies/bulkUpdate", {
-          updates: this.changes
+          updates: this.changes,
         })
-        .then(updatedMovies => {
-          updatedMovies.map(um => {
+        .then((updatedMovies) => {
+          updatedMovies.map((um) => {
             this.updatedMovie(um);
           });
           this.$toast.success(`Succesfully updated!`);
@@ -554,8 +643,8 @@ export default {
       this.showSave = false;
 
       return updatePromise;
-    }
-  }
+    },
+  },
 };
 </script>
 
