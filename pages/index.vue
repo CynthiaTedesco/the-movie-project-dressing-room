@@ -537,7 +537,7 @@ export default {
                     toastText +
                     somethingMissing.map(
                       (sm) =>
-                        `<br/>- ${sm.menu}: ${sm.attr}. Cause: ${sm.cause}.`
+                        `<br/>- ${sm.menu}: ${sm.attr}`
                     );
                 }
               }
